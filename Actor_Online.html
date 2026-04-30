@@ -95,29 +95,29 @@ body{background:#1a1c23;color:#fff;padding:20px;max-width:1200px;margin:0 auto}
   <div class="info" id="lastUpdate">等待数据加载...</div>
 </div>
 
-<!-- 录入区 -->
-<div class="input-section">
-  <h2 class="section-title">📝 录入本局数据（RT = K/D，自动计算）</h2>
-  <div class="player-inputs" id="playerInputs"></div>
-  <div class="btn-group">
-    <button class="btn-submit" id="addBtn">✅ 提交本局</button>
-    <button class="btn-reset" id="clearBtn">🗑 清空本届</button>
-  </div>
-</div>
-
-<!-- 排名 -->
+<!-- 演员实力表 -->
 <div class="result-section">
-  <h2 class="section-title">📊 实时排名（平均RT越低越好）</h2>
+  <h2 class="section-title">🎭 演员实力表</h2>
   <table class="stat-table">
     <thead><tr><th>排名</th><th>选手</th><th>总K</th><th>总D</th><th>总A</th><th>总RT</th><th>平均RT</th><th>场次</th></tr></thead>
     <tbody id="rankBody"></tbody>
   </table>
 </div>
 
-<!-- 每局详情 -->
+<!-- 每局数据详情 -->
 <div class="round-detail" id="logs">
   <h2 class="section-title">📋 每局数据详情</h2>
   <div id="loading">正在加载数据...</div>
+</div>
+
+<!-- 录入区（移至最下方） -->
+<div class="input-section">
+  <h2 class="section-title">📝 录入本局数据</h2>
+  <div class="player-inputs" id="playerInputs"></div>
+  <div class="btn-group">
+    <button class="btn-submit" id="addBtn">✅ 提交本局</button>
+    <button class="btn-reset" id="clearBtn">🗑 清空本届</button>
+  </div>
 </div>
 
 <!-- 新建届次弹窗 -->
