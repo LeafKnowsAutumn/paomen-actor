@@ -351,13 +351,22 @@ function renderInputs(){
       <div class="input-group"><label>K</label><input type="number" class="k" min="0" placeholder="击杀"></div>
       <div class="input-group"><label>D</label><input type="number" class="d" min="0" placeholder="死亡"></div>
       <div class="input-group"><label>A</label><input type="number" class="a" min="0" placeholder="助攻"></div>
-      <div class="input-group"><label>RT</label><input type="text" class="rtxt" value="-" readonly style="background:#2d323f;color:#ff4655;font-weight:bold;border:1px solid #3a4150;text-align:center;font-size:12px"></div>
+      <div class="input-group"><label>RT</label><input type="text" class="rtxt" placeholder="手动输入RT" style="background:#2d323f;color:#ff4655;font-weight:bold;border:1px solid #3a4150;text-align:center;font-size:12px"></div>
     </div>
   `).join('');
   c.querySelectorAll('.player-card').forEach(card=>{
     let ki=card.querySelector('.k'), di=card.querySelector('.d'), rt=card.querySelector('.rtxt');
-    function up(){ let k=+ki.value||0, d=+di.value||0; rt.value=calcRT(k,d); }
+    function up(){ 
+      // 只在 RT 为空时自动计算作为参考
+      if(!rt.value || rt.value=='-'){
+        let k=+ki.value||0, d=+di.value||0;
+        if(k||d) rt.value=calcRT(k,d);
+      }
+    }
     ki.oninput=up; di.oninput=up;
+    // 允许手动修改 RT
+    rt.onfocus=()=>{ if(rt.value=='-') rt.value=''; };
+    rt.onblur=()=>{ if(!rt.value) rt.value='-'; };
   });
 }
 
@@ -367,8 +376,10 @@ async function addRound(){
   let row=[], has=false;
   document.querySelectorAll('.player-card').forEach(c=>{
     let k=+c.querySelector('.k').value||0, d=+c.querySelector('.d').value||0, a=+c.querySelector('.a').value||0;
+    let rtInput = c.querySelector('.rtxt').value;
+    let rt = (rtInput && rtInput!='-') ? parseFloat(rtInput) : calcRT(k,d);
     if(k||d||a) has=true;
-    row.push({k,d,a,rt:calcRT(k,d)});
+    row.push({k,d,a,rt});
   });
   if(!has){alert('请填写数据');return;}
   let {data,error} = await sb.from('rounds').insert([{data:row,edition_id:curEd.id}]).select();
