@@ -7,57 +7,92 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Microsoft YaHei}
 body{background:#1a1c23;color:#fff;padding:20px;max-width:1200px;margin:0 auto}
-.title{text-align:center;color:#ff4655;margin:0 0 20px;font-size:28px}
+.title{text-align:center;color:#ff4655;margin:0 0 20px;font-size:24px}
+
+/* 届次栏 */
+.edition-bar{background:#252933;padding:12px 15px;border-radius:8px;margin-bottom:15px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.edition-bar .label{color:#aaa;font-size:13px}
+.edition-bar .ed-btn{padding:5px 12px;border-radius:20px;border:1px solid #3a4150;background:transparent;color:#aaa;cursor:pointer;font-size:12px}
+.ed-btn:hover{background:#3a4150}
+.ed-btn.active{background:#ff4655;color:#fff;border-color:#ff4655}
+.edition-bar .ed-time{color:#666;font-size:12px;margin-left:8px}
+.edition-bar .right-btns{margin-left:auto;display:flex;gap:8px}
+
+/* 弹窗 */
+.modal-mask{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:999}
+.modal{background:#252933;padding:20px;border-radius:12px;width:90%;max-width:480px;max-height:80vh;overflow-y:auto}
+.modal h3{color:#ff4655;margin-bottom:15px}
+.modal label{color:#aaa;font-size:13px}
+.modal input{width:100%;padding:6px 8px;background:#3a4150;color:#fff;border:none;border-radius:4px;margin-top:4px;font-size:13px}
+.modal .row{display:flex;gap:10px;margin-bottom:12px}
+.modal .row>div{flex:1}
+.btn-green{background:#28a745;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;width:100%;font-size:13px}
+.btn-red{background:#dc3545;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:12px}
+.btn-save{background:#ff4655;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;width:100%;margin-top:10px;font-size:13px}
+
 .input-section{background:#252933;padding:15px;border-radius:10px;margin-bottom:20px}
 .section-title{color:#ff4655;margin:0 0 10px;font-size:18px}
 .player-inputs{display:flex;gap:8px;width:100%;flex-wrap:wrap}
-.player-card{background:#2d323f;padding:8px;border-radius:8px;flex:1;min-width:140px;text-align:center}
-.player-avatar{width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #ff4655;margin:0 auto 5px}
-.player-name{color:#ff4655;font-weight:bold;margin-bottom:5px;font-size:13px}
+.player-card{background:#2d323f;padding:8px;border-radius:8px;flex:1;min-width:130px;text-align:center}
+.player-avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #ff4655;margin:0 auto 4px;display:block}
+.player-name{color:#ff4655;font-weight:bold;margin-bottom:5px;font-size:12px}
 .input-group{display:flex;justify-content:space-between;margin-bottom:4px;align-items:center}
-.input-group label{width:20px;font-size:12px;color:#aaa}
+.input-group label{width:18px;font-size:11px;color:#aaa}
 .input-group input{width:65%;background:#3a4150;color:#fff;border:none;border-radius:4px;padding:4px;font-size:12px}
 .btn-group{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
-button{padding:8px 12px;background:#ff4655;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px}
-button.reset{background:#6c757d}
-button.del{background:#dc3545;padding:4px 8px;font-size:12px}
+.btn-submit{padding:8px 12px;background:#ff4655;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px}
+.btn-reset{background:#6c757d;color:#fff;border:none;border-radius:6px;padding:8px 12px;cursor:pointer;font-size:13px}
+
 .result-section{background:#252933;padding:15px;border-radius:10px;margin-bottom:20px;overflow-x:auto}
 .stat-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
 .stat-table th,.stat-table td{padding:8px 6px;text-align:center;border-bottom:1px solid #3a4150}
 .stat-table th{background:#3a4150;color:#ff4655}
 .avg-rt{color:#ff4655;font-weight:bold}
+
 .round-detail{background:#252933;padding:15px;border-radius:10px}
 .round-item{background:#2d323f;padding:10px;margin-bottom:8px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
-.round-title{color:#ff4655;font-weight:bold;margin-bottom:5px}
-.round-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;text-align:center;flex:1;font-size:12px}
+.round-title{color:#ff4655;font-weight:bold;margin-bottom:5px;font-size:13px}
+.round-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(80px, 1fr));gap:5px;text-align:center;flex:1;font-size:11px;margin-top:4px}
 .status-bar{background:#252933;padding:10px 15px;border-radius:8px;margin-bottom:15px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
 .status-bar .info{color:#aaa;font-size:13px}
-.status-bar .info span{color:#ff4655;font-weight:bold}
 #loading{text-align:center;padding:40px;color:#ff4655;font-size:16px}
+
 @media(max-width:768px){
-  .player-card{min-width:100%;}
-  .round-grid{grid-template-columns:1fr;font-size:11px}
+  .player-card{min-width:100%}
+  .round-grid{grid-template-columns:repeat(3,1fr)}
 }
 </style>
 </head>
 <body>
 
-<h1 class="title">🔥 2026炮门演员争霸赛</h1>
+<!-- 届次栏 -->
+<div class="edition-bar" id="editionBar">
+  <span class="label">届次：</span>
+  <!-- 届次按钮动态插入 -->
+  <button class="btn-reset" style="font-size:12px" onclick="showNewEdition()">＋ 新建</button>
+  <div class="right-btns">
+    <button class="btn-reset" style="font-size:12px" onclick="showPlayerMgr()">⚙ 选手</button>
+  </div>
+</div>
+
+<h1 class="title" id="mainTitle">🔥 2026炮门第一届演员争霸赛</h1>
 
 <div class="status-bar">
   <div class="info">共 <span id="roundCount">0</span> 局数据</div>
   <div class="info" id="lastUpdate">等待数据加载...</div>
 </div>
 
+<!-- 录入区 -->
 <div class="input-section">
-  <h2 class="section-title">📝 录入本局数据（RT自动计算 K/D）</h2>
+  <h2 class="section-title">📝 录入本局数据（RT = K/D，自动计算）</h2>
   <div class="player-inputs" id="playerInputs"></div>
   <div class="btn-group">
-    <button id="addBtn">✅ 提交本局数据</button>
-    <button id="clearBtn" class="reset">🗑️ 清空所有数据</button>
+    <button class="btn-submit" id="addBtn">✅ 提交本局</button>
+    <button class="btn-reset" id="clearBtn">🗑 清空本届</button>
   </div>
 </div>
 
+<!-- 排名 -->
 <div class="result-section">
   <h2 class="section-title">📊 实时排名（平均RT越低越好）</h2>
   <table class="stat-table">
@@ -66,18 +101,50 @@ button.del{background:#dc3545;padding:4px 8px;font-size:12px}
   </table>
 </div>
 
+<!-- 每局详情 -->
 <div class="round-detail" id="logs">
   <h2 class="section-title">📋 每局数据详情</h2>
   <div id="loading">正在加载数据...</div>
 </div>
 
+<!-- 新建届次弹窗 -->
+<div class="modal-mask" id="editionModal" style="display:none">
+  <div class="modal">
+    <h3>🏆 新建届次</h3>
+    <div style="margin-bottom:12px">
+      <label>届次名称</label>
+      <input id="edName" placeholder="如：2026炮门第二届演员争霸赛">
+    </div>
+    <div class="row">
+      <div><label>开始时间</label><input id="edStart" type="date"></div>
+      <div><label>结束时间</label><input id="edEnd" type="date"></div>
+    </div>
+    <button class="btn-save" onclick="createEdition()">✅ 创建</button>
+  </div>
+</div>
+
+<!-- 选手管理弹窗 -->
+<div class="modal-mask" id="playerModal" style="display:none">
+  <div class="modal">
+    <h3>⚙ 管理选手</h3>
+    <div id="playerList"></div>
+    <button class="btn-green" onclick="addPlayerRow()" style="margin-bottom:10px">＋ 添加选手</button>
+    <button class="btn-save" onclick="savePlayers()">💾 保存选手列表</button>
+  </div>
+</div>
+
 <script>
-// ===== 配置区 =====
+// ===== 配置 =====
 const SUPABASE_URL = 'https://jucftwuhdcimdcsrncok.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1Y2Z0d3VoZGNpbWRjc3JuY29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MTA5NzEsImV4cCI6MjA5MzA4Njk3MX0.YZXRe4yQL_CT-JkCtEYrnfWCjbxj_uveoQqot-x9QII';
 
-const names = ["ZyWOo","Donk","老登","伊笙","幽月"];
-const avatars = [
+// ===== 状态 =====
+let sb = null;           // Supabase client
+let editions = [];      // 所有届次
+let curEd = null;        // 当前届次
+let rounds = [];         // 当前届次数据
+let names = ["ZyWOo","Donk","老登","伊笙","幽月"];
+let avatars = [
   "https://raw.githubusercontent.com/LeafKnowsAutumn/paomen-actor/main/images/zywoo.jpg",
   "https://raw.githubusercontent.com/LeafKnowsAutumn/paomen-actor/main/images/donk.jpg",
   "https://raw.githubusercontent.com/LeafKnowsAutumn/paomen-actor/main/images/laodeng.jpg",
@@ -85,248 +152,266 @@ const avatars = [
   "https://raw.githubusercontent.com/LeafKnowsAutumn/paomen-actor/main/images/youyue.jpg"
 ];
 
-let roundsData = [];
-let supabaseClient = null;
+// ===== 工具 =====
+function calcRT(k,d){ if(!d) return k; return parseFloat((k/d).toFixed(2)) }
 
-// ===== 计算 RT（K/D，D为0时返回K）=====
-function calcRT(k, d) {
-  if (d === 0) return k;
-  return parseFloat((k / d).toFixed(2));
-}
-
-// ===== 渲染输入卡片 =====
-function renderInputs() {
-  const container = document.getElementById('playerInputs');
-  container.innerHTML = names.map((n, i) => `
-    <div class="player-card" data-index="${i}">
-      <img src="${avatars[i]}" class="player-avatar" onerror="this.style.display='none'">
-      <div class="player-name">${n}</div>
-      <div class="input-group"><label>K</label><input type="number" class="k" min="0" placeholder="击杀"></div>
-      <div class="input-group"><label>D</label><input type="number" class="d" min="0" placeholder="死亡"></div>
-      <div class="input-group"><label>A</label><input type="number" class="a" min="0" placeholder="助攻"></div>
-      <div class="input-group"><label>RT</label><input type="text" class="rt-display" value="-" readonly style="background:#2d323f;color:#ff4655;font-weight:bold;border:1px solid #3a4150;text-align:center"></div>
-    </div>
-  `).join('');
-
-  // 绑定 K/D 输入事件，实时计算 RT
-  document.querySelectorAll('.player-card').forEach(card => {
-    const kInput = card.querySelector('.k');
-    const dInput = card.querySelector('.d');
-    const rtDisplay = card.querySelector('.rt-display');
-    function update() {
-      const k = parseInt(kInput.value) || 0;
-      const d = parseInt(dInput.value) || 0;
-      rtDisplay.value = calcRT(k, d);
-    }
-    kInput.addEventListener('input', update);
-    dInput.addEventListener('input', update);
+async function loadScript(src){
+  return new Promise((ok,err)=>{
+    if(window.supabase){ok();return}
+    let s=document.createElement('script');s.src=src;
+    s.onload=ok;s.onerror=()=>err(new Error(src));document.head.appendChild(s);
   });
 }
 
 // ===== 初始化 Supabase =====
-async function initSupabase() {
-  try {
+async function initSB(){
+  try{
     await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
-    if (!window.supabase) throw new Error('Supabase SDK 加载失败');
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    if(!window.supabase) throw 0;
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     return true;
-  } catch(e) {
-    console.error('Supabase init error:', e);
-    const loading = document.getElementById('loading');
-    if (loading) {
-      loading.innerHTML = '<div style="color:#ff4655;padding:20px">' +
-        '⚠️ Supabase 连接失败：' + e.message + '<br><br>' +
-        '请检查网络连接和配置信息' + '</div>';
-    }
-    return false;
+  }catch(e){ return false; }
+}
+
+// ===== 加载所有届次 =====
+async function loadEditions(){
+  let {data,error} = await sb.from('editions').select('*').order('id');
+  if(error) return;
+  editions = data||[];
+  renderEdBar();
+  if(editions.length){
+    // 默认选最后（最新）一届
+    switchEd(editions[editions.length-1].id);
+  }else{
+    showNewEdition();
   }
 }
 
-function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    if (window.supabase) { resolve(); return; }
-    const s = document.createElement('script');
-    s.src = src;
-    s.onload = resolve;
-    s.onerror = () => reject(new Error('加载失败: ' + src));
-    document.head.appendChild(s);
+// ===== 渲染届次栏 =====
+function renderEdBar(){
+  let bar = document.getElementById('editionBar');
+  let label = bar.querySelector('.label');
+  let newBtn = bar.querySelector('.btn-reset');
+  let right = bar.querySelector('.right-btns');
+  bar.innerHTML = '';
+  bar.appendChild(label);
+  editions.forEach(ev=>{
+    let b = document.createElement('button');
+    b.className = 'ed-btn' + (curEd && curEd.id===ev.id?' active':'');
+    b.textContent = ev.name.replace('2026炮门','').replace('演员争霸赛','');
+    b.onclick = ()=>switchEd(ev.id);
+    bar.appendChild(b);
+  });
+  bar.appendChild(newBtn);
+  bar.appendChild(right);
+}
+
+// ===== 切换届次 =====
+async function switchEd(id){
+  let ev = editions.find(e=>e.id===id);
+  if(!ev) return;
+  curEd = ev;
+  // 加载该届选手
+  if(ev.players && ev.players.length) names = ev.players;
+  // 加载该届数据
+  let {data,error} = await sb.from('rounds').select('id,data,created_at').eq('edition_id',id).order('id');
+  rounds = error||!data ? [] : data.map(r=>({id:r.id, data:r.data, created_at:r.created_at}));
+  // 更新标题
+  document.getElementById('mainTitle').textContent = '🔥 ' + ev.name;
+  let timeStr = (ev.start_date||'') + (ev.end_date?' ~ '+ev.end_date:'');
+  // 在届次栏显示时间
+  renderEdBar();
+  // 在标题下方显示时间
+  let existingTime = document.getElementById('edTimeDisplay');
+  if(!existingTime){
+    existingTime = document.createElement('div');
+    existingTime.id = 'edTimeDisplay';
+    existingTime.style.cssText = 'text-align:center;color:#666;font-size:13px;margin-bottom:15px';
+    document.getElementById('mainTitle').insertAdjacentElement('afterend', existingTime);
+  }
+  existingTime.textContent = timeStr;
+  renderInputs();
+  renderAll();
+  document.getElementById('lastUpdate').textContent = '最后更新: '+new Date().toLocaleTimeString('zh-CN');
+}
+
+// ===== 新建届次弹窗 =====
+function showNewEdition(){
+  document.getElementById('edName').value = '2026炮门第'+(editions.length+1)+'届演员争霸赛';
+  document.getElementById('edStart').value = new Date().toISOString().slice(0,10);
+  document.getElementById('edEnd').value = '';
+  document.getElementById('editionModal').style.display = 'flex';
+}
+window.showNewEdition = showNewEdition;
+
+async function createEdition(){
+  let name = document.getElementById('edName').value.trim();
+  let start = document.getElementById('edStart').value;
+  let end = document.getElementById('edEnd').value;
+  if(!name){alert('请输入名称');return;}
+  let {data,error} = await sb.from('editions').insert([{name,start_date:start,end_date:end,players:names}]).select();
+  if(error){alert('创建失败:'+error.message);return;}
+  editions.push(data[0]);
+  document.getElementById('editionModal').style.display = 'none';
+  switchEd(data[0].id);
+}
+
+// ===== 选手管理 =====
+function showPlayerMgr(){
+  let list = document.getElementById('playerList');
+  list.innerHTML = '';
+  names.forEach((n,i)=>{
+    let d = document.createElement('div');
+    d.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:center';
+    d.innerHTML = `<input value="${n}" style="flex:1;padding:5px 8px;background:#3a4150;color:#fff;border:none;border-radius:4px;font-size:13px" onchange="names[${i}]=this.value">`;
+    let btn = document.createElement('button');
+    btn.className = 'btn-red';
+    btn.textContent = '删除';
+    btn.onclick = ()=>{ if(names.length<=1){alert('至少保留1名选手');return;} names.splice(i,1); showPlayerMgr(); };
+    d.appendChild(btn);
+    list.appendChild(d);
+  });
+  document.getElementById('playerModal').style.display = 'flex';
+}
+window.showPlayerMgr = showPlayerMgr;
+
+function addPlayerRow(){
+  names.push('新选手');
+  showPlayerMgr();
+}
+
+async function savePlayers(){
+  if(names.length<1){alert('至少1名选手');return;}
+  if(!curEd) return;
+  let {error} = await sb.from('editions').update({players:names}).eq('id',curEd.id);
+  if(!error) curEd.players = names;
+  document.getElementById('playerModal').style.display = 'none';
+  renderInputs();
+  renderAll();
+}
+window.savePlayers = savePlayers;
+
+// ===== 渲染输入卡片 =====
+function renderInputs(){
+  let c = document.getElementById('playerInputs');
+  c.innerHTML = names.map((n,i)=>`
+    <div class="player-card">
+      <img src="${avatars[i]||''}" class="player-avatar" onerror="this.style.display='none'">
+      <div class="player-name">${n}</div>
+      <div class="input-group"><label>K</label><input type="number" class="k" min="0" placeholder="击杀"></div>
+      <div class="input-group"><label>D</label><input type="number" class="d" min="0" placeholder="死亡"></div>
+      <div class="input-group"><label>A</label><input type="number" class="a" min="0" placeholder="助攻"></div>
+      <div class="input-group"><label>RT</label><input type="text" class="rtxt" value="-" readonly style="background:#2d323f;color:#ff4655;font-weight:bold;border:1px solid #3a4150;text-align:center;font-size:12px"></div>
+    </div>
+  `).join('');
+  c.querySelectorAll('.player-card').forEach(card=>{
+    let ki=card.querySelector('.k'), di=card.querySelector('.d'), rt=card.querySelector('.rtxt');
+    function up(){ let k=+ki.value||0, d=+di.value||0; rt.value=calcRT(k,d); }
+    ki.oninput=up; di.oninput=up;
   });
 }
 
-// ===== 从云端加载数据 =====
-async function loadData() {
-  if (!supabaseClient) return;
-  try {
-    const { data, error } = await supabaseClient
-      .from('rounds')
-      .select('id,data,created_at')
-      .order('id', { ascending: true });
-    if (error) throw error;
-    roundsData = (data || []).map(r => ({ id: r.id, data: r.data, created_at: r.created_at }));
-    renderAll();
-    document.getElementById('lastUpdate').textContent =
-      '最后更新: ' + new Date().toLocaleTimeString('zh-CN');
-  } catch(e) {
-    console.error('Load error:', e);
-    document.getElementById('loading').innerHTML =
-      '<div style="color:#ff4655">加载失败：' + e.message + '</div>';
-  }
-}
-
-// ===== 提交本局数据 =====
-async function addRound() {
-  const cards = document.querySelectorAll('.player-card');
-  const row = [];
-  let hasData = false;
-  cards.forEach(c => {
-    const k = parseInt(c.querySelector('.k').value) || 0;
-    const d = parseInt(c.querySelector('.d').value) || 0;
-    const a = parseInt(c.querySelector('.a').value) || 0;
-    const rt = calcRT(k, d);
-    if (k > 0 || d > 0 || a > 0) hasData = true;
-    row.push({ k, d, a, rt });
+// ===== 提交本局 =====
+async function addRound(){
+  if(!curEd){alert('请先创建届次');return;}
+  let row=[], has=false;
+  document.querySelectorAll('.player-card').forEach(c=>{
+    let k=+c.querySelector('.k').value||0, d=+c.querySelector('.d').value||0, a=+c.querySelector('.a').value||0;
+    if(k||d||a) has=true;
+    row.push({k,d,a,rt:calcRT(k,d)});
   });
-  if (!hasData) { alert('请至少填写一位选手的K/D/A数据'); return; }
-  try {
-    const { data, error } = await supabaseClient
-      .from('rounds')
-      .insert([{ data: row }])
-      .select();
-    if (error) throw error;
-    roundsData.push({ id: data[0].id, data: row, created_at: data[0].created_at });
-    renderAll();
-    // 清空输入
-    document.querySelectorAll('.k,.d,.a').forEach(i => i.value = '');
-    document.querySelectorAll('.rt-display').forEach(i => i.value = '-');
-    document.getElementById('lastUpdate').textContent =
-      '最后更新: ' + new Date().toLocaleTimeString('zh-CN');
-  } catch(e) {
-    alert('提交失败：' + e.message);
-  }
+  if(!has){alert('请填写数据');return;}
+  let {data,error} = await sb.from('rounds').insert([{data:row,edition_id:curEd.id}]).select();
+  if(error){alert('提交失败:'+error.message);return;}
+  rounds.push({id:data[0].id,data:row,created_at:data[0].created_at});
+  renderAll();
+  document.querySelectorAll('.k,.d,.a').forEach(i=>i.value='');
+  document.querySelectorAll('.rtxt').forEach(i=>i.value='-');
+  document.getElementById('lastUpdate').textContent = '最后更新: '+new Date().toLocaleTimeString('zh-CN');
 }
 
 // ===== 删除某局 =====
-async function deleteRound(id) {
-  if (!confirm('确定删除这一局？')) return;
-  try {
-    const { error } = await supabaseClient.from('rounds').delete().eq('id', id);
-    if (error) throw error;
-    roundsData = roundsData.filter(r => r.id !== id);
-    renderAll();
-  } catch(e) {
-    alert('删除失败：' + e.message);
-  }
+async function deleteRound(id){
+  if(!confirm('删除这一局？')) return;
+  let {error} = await sb.from('rounds').delete().eq('id',id);
+  if(error){alert('删除失败');return;}
+  rounds = rounds.filter(r=>r.id!==id);
+  renderAll();
 }
 
-// ===== 清空所有 =====
-async function clearAll() {
-  if (!confirm('⚠️ 确定清空所有数据？此操作不可恢复！')) return;
-  if (!confirm('再次确认：真的要删除所有局的记录吗？')) return;
-  try {
-    const ids = roundsData.map(r => r.id);
-    const { error } = await supabaseClient.from('rounds').delete().in('id', ids);
-    if (error) throw error;
-    roundsData = [];
-    renderAll();
-  } catch(e) {
-    alert('清空失败：' + e.message);
-  }
+// ===== 清空本届 =====
+async function clearAll(){
+  if(!confirm('⚠️ 清空本届所有数据？不可恢复！')) return;
+  if(!confirm('再次确认？')) return;
+  if(!rounds.length) return;
+  let ids = rounds.map(r=>r.id);
+  let {error} = await sb.from('rounds').delete().in('id',ids);
+  if(error){alert('清空失败');return;}
+  rounds=[]; renderAll();
 }
 
 // ===== 渲染排名 =====
-function renderRank() {
-  const tbody = document.getElementById('rankBody');
-  if (roundsData.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" style="color:#666">暂无数据，请录入第一局</td></tr>';
+function renderRank(){
+  let tb = document.getElementById('rankBody');
+  if(!rounds.length){
+    tb.innerHTML = '<tr><td colspan="8" style="color:#666">暂无数据</td></tr>';
     return;
   }
-  const total = Array(names.length).fill(null).map(() => ({ k:0, d:0, a:0, rt:0 }));
-  roundsData.forEach(r => {
-    r.data.forEach((p, i) => {
-      total[i].k += p.k;
-      total[i].d += p.d;
-      total[i].a += p.a;
-      total[i].rt += p.rt;
-    });
+  let N=names.length, tot=Array.from({length:N},()=>({k:0,d:0,a:0,rt:0}));
+  rounds.forEach(r=>{
+    r.data.forEach((p,i)=>{ if(tot[i]){tot[i].k+=p.k;tot[i].d+=p.d;tot[i].a+=p.a;tot[i].rt+=p.rt;} });
   });
-  const rank = names.map((n, i) => ({
-    name: n,
-    k: total[i].k,
-    d: total[i].d,
-    a: total[i].a,
-    rt: total[i].rt,
-    avg: (total[i].rt / roundsData.length).toFixed(2),
-    games: roundsData.length
+  let rank = names.map((n,i)=>({
+    name:n, k:tot[i]?tot[i].k:0, d:tot[i]?tot[i].d:0, a:tot[i]?tot[i].a:0,
+    rt:tot[i]?tot[i].rt:0, avg:tot[i]?((tot[i].rt/rounds.length).toFixed(2)):'0.00'
   }));
-  rank.sort((a, b) => a.avg - b.avg);
-  tbody.innerHTML = rank.map((r, i) => `
-    <tr>
-      <td>${i + 1}</td>
-      <td style="color:#ff4655;font-weight:bold">${r.name}</td>
-      <td>${r.k}</td>
-      <td>${r.d}</td>
-      <td>${r.a}</td>
-      <td>${r.rt.toFixed(1)}</td>
-      <td class="avg-rt">${r.avg}</td>
-      <td>${r.games}</td>
-    </tr>
+  rank.sort((a,b)=>a.avg-b.avg);
+  tb.innerHTML = rank.map((r,i)=>`
+    <tr><td>${i+1}</td><td style="color:#ff4655;font-weight:bold">${r.name}</td><td>${r.k}</td><td>${r.d}</td><td>${r.a}</td><td>${r.rt.toFixed(1)}</td><td class="avg-rt">${r.avg}</td><td>${rounds.length}</td></tr>
   `).join('');
 }
 
-// ===== 渲染每局详情 =====
-function renderLogs() {
-  const container = document.getElementById('logs');
-  const title = container.querySelector('.section-title');
-  container.innerHTML = '';
-  container.appendChild(title);
-  if (roundsData.length === 0) {
-    container.innerHTML += '<div style="color:#666;text-align:center;padding:20px">暂无数据</div>';
-    return;
-  }
-  roundsData.forEach((round, i) => {
-    const div = document.createElement('div');
-    div.className = 'round-item';
-    div.innerHTML = `
+// ===== 渲染每局 =====
+function renderLogs(){
+  let c = document.getElementById('logs');
+  let t = c.querySelector('.section-title');
+  c.innerHTML = ''; c.appendChild(t);
+  if(!rounds.length){ c.innerHTML += '<div style="color:#666;text-align:center;padding:20px">暂无数据</div>'; return; }
+  rounds.forEach((r,i)=>{
+    let d = document.createElement('div');
+    d.className='round-item';
+    d.innerHTML=`
       <div style="flex:1;min-width:200px">
-        <div class="round-title">第${i + 1}局 · ${new Date(round.created_at).toLocaleString('zh-CN')}</div>
-        <div class="round-grid">
-          ${round.data.map((p, j) => `
-            <div>
-              <div style="color:#ff4655;font-size:11px">${names[j]}</div>
-              <div>${p.k}/${p.d}/${p.a}</div>
-              <div style="color:#aaa;font-size:11px">RT:${p.rt}</div>
-            </div>
-          `).join('')}
-        </div>
+        <div class="round-title">第${i+1}局 · ${new Date(r.created_at).toLocaleString('zh-CN')}</div>
+        <div class="round-grid">${r.data.map((p,j)=>`
+          <div><div style="color:#ff4655;font-size:11px">${names[j]||'?'}</div><div>${p.k}/${p.d}/${p.a}</div><div style="color:#aaa;font-size:11px">RT:${p.rt}</div></div>
+        `).join('')}</div>
       </div>
-      <button class="del" onclick="deleteRound(${round.id})">删除</button>
-    `;
-    container.appendChild(div);
+      <button class="btn-red" onclick="deleteRound(${r.id})">删除</button>`;
+    c.appendChild(d);
   });
 }
 
 // ===== 总渲染 =====
-function renderAll() {
-  document.getElementById('roundCount').textContent = roundsData.length;
-  renderRank();
-  renderLogs();
-  // 隐藏 loading（如果存在）
-  const loading = document.getElementById('loading');
-  if (loading && roundsData.length > 0) {
-    loading.style.display = 'none';
-  }
+function renderAll(){
+  document.getElementById('roundCount').textContent = rounds.length;
+  renderRank(); renderLogs();
+  let ld = document.getElementById('loading');
+  if(ld && rounds.length) ld.style.display='none';
 }
 
 // ===== 启动 =====
-renderInputs();
-
-initSupabase().then(success => {
-  if (success) loadData();
-});
-
-document.getElementById('addBtn').onclick = addRound;
-document.getElementById('clearBtn').onclick = clearAll;
+(async ()=>{
+  if(await initSB()) await loadEditions();
+  document.getElementById('addBtn').onclick = addRound;
+  document.getElementById('clearBtn').onclick = clearAll;
+  // 点弹窗背景关闭弹窗
+  ['editionModal','playerModal'].forEach(id=>{
+    document.getElementById(id).addEventListener('click',function(e){
+      if(e.target===this) this.style.display='none';
+    });
+  });
+})();
 </script>
-
 </body>
 </html>
