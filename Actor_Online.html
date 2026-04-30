@@ -151,6 +151,7 @@ let avatars = [
   "https://raw.githubusercontent.com/LeafKnowsAutumn/paomen-actor/main/images/yisheng.jpg",
   "https://raw.githubusercontent.com/LeafKnowsAutumn/paomen-actor/main/images/youyue.jpg"
 ];
+const DEFAULT_AVATAR = "https://raw.githubusercontent.com/LeafKnowsAutumn/paomen-actor/main/images/paomen.jpg";
 
 // ===== 工具 =====
 function calcRT(k,d){ if(!d) return k; return parseFloat((k/d).toFixed(2)) }
@@ -213,6 +214,13 @@ async function switchEd(id){
   curEd = ev;
   // 加载该届选手
   if(ev.players && ev.players.length) names = ev.players;
+  // 加载该届选手头像
+  if(ev.avatars && ev.avatars.length) {
+    avatars = ev.avatars;
+  } else {
+    // 如果没有保存过头像，使用默认头像
+    avatars = names.map(() => DEFAULT_AVATAR);
+  }
   // 加载该届数据
   let {data,error} = await sb.from('rounds').select('id,data,created_at').eq('edition_id',id).order('id');
   rounds = error||!data ? [] : data.map(r=>({id:r.id, data:r.data, created_at:r.created_at}));
@@ -249,7 +257,14 @@ async function createEdition(){
   let start = document.getElementById('edStart').value;
   let end = document.getElementById('edEnd').value;
   if(!name){alert('请输入名称');return;}
-  let {data,error} = await sb.from('editions').insert([{name,start_date:start,end_date:end,players:names}]).select();
+  // 保存选手名字和头像
+  let {data,error} = await sb.from('editions').insert([{
+    name,
+    start_date:start,
+    end_date:end,
+    players:names,
+    avatars:avatars
+  }]).select();
   if(error){alert('创建失败:'+error.message);return;}
   editions.push(data[0]);
   document.getElementById('editionModal').style.display = 'none';
@@ -262,12 +277,38 @@ function showPlayerMgr(){
   list.innerHTML = '';
   names.forEach((n,i)=>{
     let d = document.createElement('div');
-    d.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:center';
-    d.innerHTML = `<input value="${n}" style="flex:1;padding:5px 8px;background:#3a4150;color:#fff;border:none;border-radius:4px;font-size:13px" onchange="names[${i}]=this.value">`;
+    d.style.cssText = 'margin-bottom:12px;padding:8px;background:#3a4150;border-radius:6px';
+    
+    // 头像预览
+    let img = document.createElement('img');
+    img.src = avatars[i]||DEFAULT_AVATAR;
+    img.style.cssText = 'width:48px;height:48px;border-radius:50%;object-fit:cover;margin:0 auto 8px;display:block;border:2px solid #ff4655';
+    
+    // 名字输入
+    let nameInput = document.createElement('input');
+    nameInput.value = n;
+    nameInput.style.cssText = 'width:100%;margin-bottom:6px;padding:5px 8px;background:#2d323f;color:#fff;border:none;border-radius:4px;font-size:13px';
+    nameInput.onchange = function(){ names[i] = this.value; };
+    
+    // 头像URL输入
+    let avatarInput = document.createElement('input');
+    avatarInput.value = avatars[i]||'';
+    avatarInput.placeholder = '头像URL（留空使用默认）';
+    avatarInput.style.cssText = 'width:100%;margin-bottom:8px;padding:5px 8px;background:#2d323f;color:#fff;border:none;border-radius:4px;font-size:11px';
+    avatarInput.oninput = function(){ 
+      avatars[i] = this.value || DEFAULT_AVATAR;
+      img.src = avatars[i];
+    };
+    
+    // 删除按钮
     let btn = document.createElement('button');
     btn.className = 'btn-red';
-    btn.textContent = '删除';
-    btn.onclick = ()=>{ if(names.length<=1){alert('至少保留1名选手');return;} names.splice(i,1); showPlayerMgr(); };
+    btn.textContent = '删除此选手';
+    btn.onclick = ()=>{ if(names.length<=1){alert('至少保留1名选手');return;} names.splice(i,1); avatars.splice(i,1); showPlayerMgr(); };
+    
+    d.appendChild(img);
+    d.appendChild(nameInput);
+    d.appendChild(avatarInput);
     d.appendChild(btn);
     list.appendChild(d);
   });
@@ -277,14 +318,23 @@ window.showPlayerMgr = showPlayerMgr;
 
 function addPlayerRow(){
   names.push('新选手');
+  avatars.push(DEFAULT_AVATAR);  // 新选手使用默认头像
   showPlayerMgr();
 }
 
 async function savePlayers(){
   if(names.length<1){alert('至少1名选手');return;}
   if(!curEd) return;
-  let {error} = await sb.from('editions').update({players:names}).eq('id',curEd.id);
-  if(!error) curEd.players = names;
+  // 保存选手名字和头像到数据库
+  let {error} = await sb.from('editions').update({
+    players: names,
+    avatars: avatars
+  }).eq('id',curEd.id);
+  
+  if(!error) {
+    curEd.players = names;
+    curEd.avatars = avatars;
+  }
   document.getElementById('playerModal').style.display = 'none';
   renderInputs();
   renderAll();
@@ -296,7 +346,7 @@ function renderInputs(){
   let c = document.getElementById('playerInputs');
   c.innerHTML = names.map((n,i)=>`
     <div class="player-card">
-      <img src="${avatars[i]||''}" class="player-avatar" onerror="this.style.display='none'">
+      <img src="${avatars[i]||DEFAULT_AVATAR}" class="player-avatar" onerror="this.src='${DEFAULT_AVATAR}'">
       <div class="player-name">${n}</div>
       <div class="input-group"><label>K</label><input type="number" class="k" min="0" placeholder="击杀"></div>
       <div class="input-group"><label>D</label><input type="number" class="d" min="0" placeholder="死亡"></div>
