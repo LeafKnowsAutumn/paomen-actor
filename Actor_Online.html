@@ -65,8 +65,8 @@ body{background:#1a1c23;color:#fff;padding:20px;max-width:1200px;margin:0 auto}
 </head>
 <body>
 
-<!-- 微信浏览器提示遮罩 -->
-<div id="wechatTip" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:30px">
+<!-- 微信浏览器提示遮罩（仅微信内显示） -->
+<div id="wechatTip" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:30px">
   <div style="font-size:60px;margin-bottom:20px">📱</div>
   <div style="font-size:18px;margin-bottom:15px;color:#ff4655;font-weight:bold">微信限制访问</div>
   <div style="font-size:14px;line-height:1.8;color:#ccc;max-width:300px">
@@ -479,7 +479,8 @@ function renderAll(){
   let ua = navigator.userAgent.toLowerCase();
   let isWechat = ua.indexOf('micromessenger')!==-1;
   if(isWechat){
-    document.getElementById('wechatTip').style.display='flex';
+    let tip = document.getElementById('wechatTip');
+    tip.style.display = 'flex';
     document.getElementById('wechatUrl').textContent = window.location.href;
   }
 })();
