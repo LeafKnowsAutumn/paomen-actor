@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>2026炮门演员争霸赛</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Microsoft YaHei}
+body{background:#1a1c23;color:#fff;padding:20px;max-width:1200px;margin:0 auto}
+.title{text-align:center;color:#ff4655;margin:0 0 20px;font-size:28px}
+.input-section{background:#252933;padding:15px;border-radius:10px;margin-bottom:20px}
+.section-title{color:#ff4655;margin:0 0 10px;font-size:18px}
+.player-inputs{display:flex;gap:8px;width:100%;flex-wrap:wrap}
+.player-card{background:#2d323f;padding:8px;border-radius:8px;flex:1;min-width:140px;text-align:center}
+.player-avatar{width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #ff4655;margin:0 auto 5px}
+.player-name{color:#ff4655;font-weight:bold;margin-bottom:5px;font-size:13px}
+.input-group{display:flex;justify-content:space-between;margin-bottom:4px;align-items:center}
+.input-group label{width:20px;font-size:12px;color:#aaa}
+.input-group input{width:65%;background:#3a4150;color:#fff;border:none;border-radius:4px;padding:4px;font-size:12px}
+.btn-group{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+button{padding:8px 12px;background:#ff4655;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px}
+button.reset{background:#6c757d}
+button.del{background:#dc3545;padding:4px 8px;font-size:12px}
+.result-section{background:#252933;padding:15px;border-radius:10px;margin-bottom:20px;overflow-x:auto}
+.stat-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+.stat-table th,.stat-table td{padding:8px 6px;text-align:center;border-bottom:1px solid #3a4150}
+.stat-table th{background:#3a4150;color:#ff4655}
+.avg-rt{color:#ff4655;font-weight:bold}
+.round-detail{background:#252933;padding:15px;border-radius:10px}
+.round-item{background:#2d323f;padding:10px;margin-bottom:8px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.round-title{color:#ff4655;font-weight:bold;margin-bottom:5px}
+.round-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;text-align:center;flex:1;font-size:12px}
+.status-bar{background:#252933;padding:10px 15px;border-radius:8px;margin-bottom:15px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.status-bar .info{color:#aaa;font-size:13px}
+.status-bar .info span{color:#ff4655;font-weight:bold}
+#loading{text-align:center;padding:40px;color:#ff4655;font-size:16px}
+@media(max-width:768px){
+  .player-card{min-width:100%;}
+  .round-grid{grid-template-columns:1fr;font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<h1 class="title">🔥 2026炮门演员争霸赛</h1>
+
+<div class="status-bar">
+  <div class="info">共 <span id="roundCount">0</span> 局数据</div>
+  <div class="info" id="lastUpdate">等待数据加载...</div>
+</div>
+
+<div class="input-section">
+  <h2 class="section-title">📝 录入本局数据（RT自动计算 K/D）</h2>
+  <div class="player-inputs" id="playerInputs"></div>
+  <div class="btn-group">
+    <button id="addBtn">✅ 提交本局数据</button>
+    <button id="clearBtn" class="reset">🗑️ 清空所有数据</button>
+  </div>
+</div>
+
+<div class="result-section">
+  <h2 class="section-title">📊 实时排名（平均RT越低越好）</h2>
+  <table class="stat-table">
+    <thead><tr><th>排名</th><th>选手</th><th>总K</th><th>总D</th><th>总A</th><th>总RT</th><th>平均RT</th><th>场次</th></tr></thead>
+    <tbody id="rankBody"></tbody>
+  </table>
+</div>
+
+<div class="round-detail" id="logs">
+  <h2 class="section-title">📋 每局数据详情</h2>
+  <div id="loading">正在加载数据...</div>
+</div>
+
+<script>
+// ===== 配置区 =====
+const SUPABASE_URL = 'https://jucftwuhdcimdcsrncok.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1Y2Z0d3VoZGNpbWRjc3JuY29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MTA5NzEsImV4cCI6MjA5MzA4Njk3MX0.YZXRe4yQL_CT-JkCtEYrnfWCjbxj_uveoQqot-x9QII';
+
+const names = ["ZyWOo","Donk","老登","伊笙","幽月"];
+const avatars = [
+  "https://s41.ax1x.com/2026/04/30/peolN5D.jpg",
+  "https://s41.ax1x.com/2026/04/30/peoltUO.jpg",
+  "https://s41.ax1x.com/2026/04/30/peolaPe.jpg",
+  "https://s41.ax1x.com/2026/04/30/peolYVK.jpg",
+  "https://s41.ax1x.com/2026/04/30/peolGb6.jpg"
+];
+
+let roundsData = [];
+let supabaseClient = null;
+
+// ===== 计算 RT（K/D，D为0时返回K）=====
+function calcRT(k, d) {
+  if (d === 0) return k;
+  return parseFloat((k / d).toFixed(2));
+}
+
+// ===== 渲染输入卡片 =====
+function renderInputs() {
+  const container = document.getElementById('playerInputs');
+  container.innerHTML = names.map((n, i) => `
+    <div class="player-card" data-index="${i}">
+      <img src="${avatars[i]}" class="player-avatar" onerror="this.style.display='none'">
+      <div class="player-name">${n}</div>
+      <div class="input-group"><label>K</label><input type="number" class="k" min="0" placeholder="击杀"></div>
+      <div class="input-group"><label>D</label><input type="number" class="d" min="0" placeholder="死亡"></div>
+      <div class="input-group"><label>A</label><input type="number" class="a" min="0" placeholder="助攻"></div>
+      <div class="input-group"><label>RT</label><input type="text" class="rt-display" value="-" readonly style="background:#2d323f;color:#ff4655;font-weight:bold;border:1px solid #3a4150;text-align:center"></div>
+    </div>
+  `).join('');
+
+  // 绑定 K/D 输入事件，实时计算 RT
+  document.querySelectorAll('.player-card').forEach(card => {
+    const kInput = card.querySelector('.k');
+    const dInput = card.querySelector('.d');
+    const rtDisplay = card.querySelector('.rt-display');
+    function update() {
+      const k = parseInt(kInput.value) || 0;
+      const d = parseInt(dInput.value) || 0;
+      rtDisplay.value = calcRT(k, d);
+    }
+    kInput.addEventListener('input', update);
+    dInput.addEventListener('input', update);
+  });
+}
+
+// ===== 初始化 Supabase =====
+async function initSupabase() {
+  try {
+    await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
+    if (!window.supabase) throw new Error('Supabase SDK 加载失败');
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    return true;
+  } catch(e) {
+    console.error('Supabase init error:', e);
+    const loading = document.getElementById('loading');
+    if (loading) {
+      loading.innerHTML = '<div style="color:#ff4655;padding:20px">' +
+        '⚠️ Supabase 连接失败：' + e.message + '<br><br>' +
+        '请检查网络连接和配置信息' + '</div>';
+    }
+    return false;
+  }
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (window.supabase) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('加载失败: ' + src));
+    document.head.appendChild(s);
+  });
+}
+
+// ===== 从云端加载数据 =====
+async function loadData() {
+  if (!supabaseClient) return;
+  try {
+    const { data, error } = await supabaseClient
+      .from('rounds')
+      .select('id,data,created_at')
+      .order('id', { ascending: true });
+    if (error) throw error;
+    roundsData = (data || []).map(r => ({ id: r.id, data: r.data, created_at: r.created_at }));
+    renderAll();
+    document.getElementById('lastUpdate').textContent =
+      '最后更新: ' + new Date().toLocaleTimeString('zh-CN');
+  } catch(e) {
+    console.error('Load error:', e);
+    document.getElementById('loading').innerHTML =
+      '<div style="color:#ff4655">加载失败：' + e.message + '</div>';
+  }
+}
+
+// ===== 提交本局数据 =====
+async function addRound() {
+  const cards = document.querySelectorAll('.player-card');
+  const row = [];
+  let hasData = false;
+  cards.forEach(c => {
+    const k = parseInt(c.querySelector('.k').value) || 0;
+    const d = parseInt(c.querySelector('.d').value) || 0;
+    const a = parseInt(c.querySelector('.a').value) || 0;
+    const rt = calcRT(k, d);
+    if (k > 0 || d > 0 || a > 0) hasData = true;
+    row.push({ k, d, a, rt });
+  });
+  if (!hasData) { alert('请至少填写一位选手的K/D/A数据'); return; }
+  try {
+    const { data, error } = await supabaseClient
+      .from('rounds')
+      .insert([{ data: row }])
+      .select();
+    if (error) throw error;
+    roundsData.push({ id: data[0].id, data: row, created_at: data[0].created_at });
+    renderAll();
+    // 清空输入
+    document.querySelectorAll('.k,.d,.a').forEach(i => i.value = '');
+    document.querySelectorAll('.rt-display').forEach(i => i.value = '-');
+    document.getElementById('lastUpdate').textContent =
+      '最后更新: ' + new Date().toLocaleTimeString('zh-CN');
+  } catch(e) {
+    alert('提交失败：' + e.message);
+  }
+}
+
+// ===== 删除某局 =====
+async function deleteRound(id) {
+  if (!confirm('确定删除这一局？')) return;
+  try {
+    const { error } = await supabaseClient.from('rounds').delete().eq('id', id);
+    if (error) throw error;
+    roundsData = roundsData.filter(r => r.id !== id);
+    renderAll();
+  } catch(e) {
+    alert('删除失败：' + e.message);
+  }
+}
+
+// ===== 清空所有 =====
+async function clearAll() {
+  if (!confirm('⚠️ 确定清空所有数据？此操作不可恢复！')) return;
+  if (!confirm('再次确认：真的要删除所有局的记录吗？')) return;
+  try {
+    const ids = roundsData.map(r => r.id);
+    const { error } = await supabaseClient.from('rounds').delete().in('id', ids);
+    if (error) throw error;
+    roundsData = [];
+    renderAll();
+  } catch(e) {
+    alert('清空失败：' + e.message);
+  }
+}
+
+// ===== 渲染排名 =====
+function renderRank() {
+  const tbody = document.getElementById('rankBody');
+  if (roundsData.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="color:#666">暂无数据，请录入第一局</td></tr>';
+    return;
+  }
+  const total = Array(names.length).fill(null).map(() => ({ k:0, d:0, a:0, rt:0 }));
+  roundsData.forEach(r => {
+    r.data.forEach((p, i) => {
+      total[i].k += p.k;
+      total[i].d += p.d;
+      total[i].a += p.a;
+      total[i].rt += p.rt;
+    });
+  });
+  const rank = names.map((n, i) => ({
+    name: n,
+    k: total[i].k,
+    d: total[i].d,
+    a: total[i].a,
+    rt: total[i].rt,
+    avg: (total[i].rt / roundsData.length).toFixed(2),
+    games: roundsData.length
+  }));
+  rank.sort((a, b) => a.avg - b.avg);
+  tbody.innerHTML = rank.map((r, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td style="color:#ff4655;font-weight:bold">${r.name}</td>
+      <td>${r.k}</td>
+      <td>${r.d}</td>
+      <td>${r.a}</td>
+      <td>${r.rt.toFixed(1)}</td>
+      <td class="avg-rt">${r.avg}</td>
+      <td>${r.games}</td>
+    </tr>
+  `).join('');
+}
+
+// ===== 渲染每局详情 =====
+function renderLogs() {
+  const container = document.getElementById('logs');
+  const title = container.querySelector('.section-title');
+  container.innerHTML = '';
+  container.appendChild(title);
+  if (roundsData.length === 0) {
+    container.innerHTML += '<div style="color:#666;text-align:center;padding:20px">暂无数据</div>';
+    return;
+  }
+  roundsData.forEach((round, i) => {
+    const div = document.createElement('div');
+    div.className = 'round-item';
+    div.innerHTML = `
+      <div style="flex:1;min-width:200px">
+        <div class="round-title">第${i + 1}局 · ${new Date(round.created_at).toLocaleString('zh-CN')}</div>
+        <div class="round-grid">
+          ${round.data.map((p, j) => `
+            <div>
+              <div style="color:#ff4655;font-size:11px">${names[j]}</div>
+              <div>${p.k}/${p.d}/${p.a}</div>
+              <div style="color:#aaa;font-size:11px">RT:${p.rt}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <button class="del" onclick="deleteRound(${round.id})">删除</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// ===== 总渲染 =====
+function renderAll() {
+  document.getElementById('roundCount').textContent = roundsData.length;
+  renderRank();
+  renderLogs();
+  // 隐藏 loading（如果存在）
+  const loading = document.getElementById('loading');
+  if (loading && roundsData.length > 0) {
+    loading.style.display = 'none';
+  }
+}
+
+// ===== 启动 =====
+renderInputs();
+
+initSupabase().then(success => {
+  if (success) loadData();
+});
+
+document.getElementById('addBtn').onclick = addRound;
+document.getElementById('clearBtn').onclick = clearAll;
+</script>
+
+</body>
+</html>
