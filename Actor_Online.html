@@ -301,8 +301,13 @@ async function switchEd(id){
   // 初始化录入区演员列表
   inputActors = names.map((n,i)=>({name:n, avatar:avatars[i]||DEFAULT_AVATAR}));
 
-  let {data,error} = await sb.from('rounds').select('id,data,created_at').eq('edition_id',id).order('id');
-  rounds = error||!data ? [] : data.map(r=>({id:r.id, data:r.data, created_at:r.created_at}));
+  let {data,error} = await sb.from('rounds').select('id,data,created_at,result').eq('edition_id',id).order('id');
+  rounds = error||!data ? [] : data.map(r=>({
+    id:r.id,
+    data:r.data,
+    created_at:r.created_at,
+    result:r.result||''
+  }));
   document.getElementById('mainTitle').textContent = '🔥 ' + ev.name;
   let timeStr = (ev.start_date||'') + (ev.end_date?' ~ '+ev.end_date:'');
   renderEdBar();
@@ -465,6 +470,7 @@ window.confirmAddActor = async function(){
   document.getElementById('addActorModal').style.display = 'none';
   renderInputs();
 };
+
 function renderInputs(){
   let c = document.getElementById('playerInputs');
   c.innerHTML = inputActors.map((actor,i)=>`
@@ -524,7 +530,8 @@ async function addRound(){
   if(result) payload.result=result;
   let {data,error} = await sb.from('rounds').insert([payload]).select();
   if(error){alert('提交失败:'+error.message);return;}
-  rounds.push({id:data[0].id, data:row, created_at:data[0].created_at, result:data[0].result||result});
+  let insertedResult = data[0].result || result;
+  rounds.push({id:data[0].id, data:row, created_at:data[0].created_at, result:insertedResult});
   renderAll();
   document.querySelectorAll('#playerInputs .k,.d,.a,.adr').forEach(i=>i.value='');
   document.querySelectorAll('#playerInputs .rtxt').forEach(i=>i.value='-');
@@ -563,7 +570,8 @@ function renderRank(){
   let actorMap = {}; // name -> {k,d,a,rt,adr,count}
   rounds.forEach(r=>{
     r.data.forEach((p,idx)=>{
-      let n = p.name || names[idx] || '未知';
+      // 优先用 p.name，没有则用 names[idx]（兼容v1无name字段的旧数据）
+      let n = p.name || (names[idx]||'未知');
       if(!actorMap[n]) actorMap[n]={k:0,d:0,a:0,rt:0,adr:0,count:0};
       actorMap[n].k   += p.k||0;
       actorMap[n].d   += p.d||0;
@@ -593,7 +601,7 @@ function renderRank(){
   `).join('');
 }
 
-// ===== 渲染每局详情（最新在上） =====
+// ===== 渲染每局详情（最新在上）=====
 function renderLogs(){
   let c = document.getElementById('logs');
   let t = c.querySelector('.section-title');
@@ -621,7 +629,7 @@ function renderLogs(){
       </div>
       <div class="round-grid">${r.data.map((p,idx)=>`
         <div>
-          <div class="cell-name">${p.name || names[idx] || '?'}</div>
+          <div class="cell-name">${p.name || (names[idx]||'?')}</div>
           <div class="cell-kda">${p.k}/${p.d}/${p.a}</div>
           <div class="cell-rt">RT: ${p.rt}</div>
           ${p.adr?`<div class="cell-adr">ADR: ${p.adr}</div>`:''}
