@@ -39,6 +39,15 @@ body{background:#1a1c23;color:#fff;padding:20px;max-width:1200px;margin:0 auto}
 .add-actor-modal .save-check input[type="checkbox"]{width:16px;height:16px;accent-color:#28a745}
 .add-actor-modal .btn-add{background:#28a745;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;width:100%;font-size:13px}
 
+/* 演员复选列表 */
+.actor-check-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer}
+.actor-check-item:hover{background:#2d323f}
+.actor-check-item.disabled{opacity:0.4;cursor:not-allowed}
+.actor-check-item input[type="checkbox"]{accent-color:#28a745;width:16px;height:16px}
+.actor-check-item.disabled input[type="checkbox"]{accent-color:#666}
+.actor-check-name{font-size:13px;color:#fff}
+.actor-check-item.disabled .actor-check-name{color:#666}
+
 /* 演员管理弹窗 */
 .actor-item{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px;background:#3a4150;border-radius:8px}
 .actor-item img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #ff4655;flex-shrink:0}
@@ -188,25 +197,30 @@ body{background:#1a1c23;color:#fff;padding:20px;max-width:1200px;margin:0 auto}
   </div>
 </div>
 
-<!-- 加演员弹窗 -->
+<!-- 加演员弹窗（多选版） -->
 <div class="modal-mask" id="addActorModal" style="display:none">
   <div class="modal add-actor-modal">
     <h3>➕ 添加演员到本局</h3>
-    <div class="pick-row">
-      <label>选择资料库演员：</label>
-      <select id="pickActorSelect" style="flex:1;padding:6px 8px;background:#3a4150;color:#fff;border:1px solid #3a4150;border-radius:4px;font-size:13px">
-        <option value="">-- 请选择 --</option>
-      </select>
+
+    <!-- 资料库演员多选列表 -->
+    <div style="margin-bottom:14px">
+      <label style="color:#aaa;font-size:13px;display:block;margin-bottom:8px">选择资料库演员（可多选）：</label>
+      <div id="actorCheckList" style="max-height:200px;overflow-y:auto;background:#3a4150;border-radius:6px;padding:6px 8px"></div>
     </div>
-    <div class="custom-row">
-      <label style="color:#aaa;font-size:13px;white-space:nowrap">或自定义名称：</label>
+
+    <!-- 自定义演员 -->
+    <div class="custom-row" style="margin-bottom:12px">
+      <label style="color:#aaa;font-size:13px;white-space:nowrap">或添加自定义演员：</label>
       <input type="text" id="customActorName" placeholder="输入演员名称" style="flex:1">
+      <button onclick="confirmAddCustomActor()" style="padding:4px 12px;background:#28a745;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;white-space:nowrap">添加</button>
     </div>
+
     <div class="save-check">
       <input type="checkbox" id="saveToLib" checked>
-      <label for="saveToLib" style="color:#aaa;font-size:13px">同时保存到演员资料库</label>
+      <label for="saveToLib" style="color:#aaa;font-size:13px">自定义演员同时保存到资料库</label>
     </div>
-    <button class="btn-add" onclick="confirmAddActor()">✅ 确认添加</button>
+
+    <button class="btn-add" onclick="confirmAddActors()" style="margin-top:10px">✅ 确认添加选中演员</button>
   </div>
 </div>
 
@@ -256,7 +270,6 @@ async function initSB(){
 
 // ===== 确保数据库表结构正确 =====
 async function ensureTables(){
-  // 尝试 select result 字段，如果失败说明字段不存在，需要提示用户手动执行SQL
   let {error} = await sb.from('rounds').select('result').limit(1);
   if(error && error.message && error.message.includes('result')){
     alert('⚠️ 数据库缺少 result 字段，请在 Supabase SQL Editor 执行：\n\nALTER TABLE public.rounds ADD COLUMN IF NOT EXISTS result TEXT;\nALTER TABLE public.editions DISABLE ROW LEVEL SECURITY;\nALTER TABLE public.rounds DISABLE ROW LEVEL SECURITY;');
@@ -284,7 +297,6 @@ function renderEdBar(){
   let right = bar.querySelector('.right-btns');
   bar.innerHTML = '';
   bar.appendChild(label);
-  // editions 已按 id 倒序，直接渲染（最新在最前面）
   editions.forEach(ev=>{
     let b = document.createElement('button');
     b.className = 'ed-btn' + (curEd && curEd.id===ev.id?' active':'');
@@ -307,7 +319,6 @@ async function switchEd(id){
   }else{
     avatars = names.map(()=>DEFAULT_AVATAR);
   }
-  // 初始化录入区演员列表
   inputActors = names.map((n,i)=>({name:n, avatar:avatars[i]||DEFAULT_AVATAR}));
 
   let {data,error} = await sb.from('rounds').select('id,data,created_at,result').eq('edition_id',id).order('id');
@@ -377,7 +388,6 @@ function renderActorList(){
       </div>
       <button class="btn-red" onclick="removeActor(${i})" style="flex-shrink:0">删除</button>
     `;
-    // 绑定输入事件
     let nameInp = item.querySelector('[data-field="name"]');
     let avInp   = item.querySelector('[data-field="avatar"]');
     let img     = item.querySelector('img');
@@ -410,7 +420,6 @@ async function saveActors(){
   if(!curEd) return;
   let {error} = await sb.from('editions').update({players:names, avatars:avatars}).eq('id',curEd.id);
   if(!error){ curEd.players=names; curEd.avatars=avatars; }
-  // 同步录入区演员列表
   inputActors = names.map((n,i)=>({name:n, avatar:avatars[i]||DEFAULT_AVATAR}));
   document.getElementById('actorModal').style.display = 'none';
   renderInputs();
@@ -418,21 +427,7 @@ async function saveActors(){
 }
 window.saveActors = saveActors;
 
-// ===== 录入区：在本局临时加演员 =====
-function addTempActor(){
-  // 弹出选择框，从names里选一个未在inputActors中的，或手动输入
-  let unused = names.filter(n=>!inputActors.find(a=>a.name===n));
-  if(unused.length){
-    let n = unused[0];
-    let idx = names.indexOf(n);
-    inputActors.push({name:n, avatar:avatars[idx]||DEFAULT_AVATAR});
-  }else{
-    inputActors.push({name:'临时演员', avatar:DEFAULT_AVATAR});
-  }
-  renderInputs();
-}
-window.addTempActor = addTempActor;
-
+// ===== 录入区：移除演员 =====
 function removeInputActor(i){
   if(inputActors.length<=1){alert('至少保留1名演员');return;}
   inputActors.splice(i,1);
@@ -440,43 +435,65 @@ function removeInputActor(i){
 }
 window.removeInputActor = removeInputActor;
 
-// ===== 加演员弹窗 =====
+// ===== 加演员弹窗（多选版）=====
 window.showAddActorModal = function(){
-  let sel = document.getElementById('pickActorSelect');
-  sel.innerHTML = '<option value="">-- 请选择资料库演员 --</option>';
-  // 显示资料库所有演员，已添加的标注"已添加"
+  let list = document.getElementById('actorCheckList');
+  list.innerHTML = '';
   names.forEach((n,i)=>{
-    let o = document.createElement('option');
-    o.value = n;
-    o.textContent = inputActors.find(a=>a.name===n)
-      ? n + '（已添加，可重复添加）'
-      : n;
-    sel.appendChild(o);
+    let already = inputActors.find(a=>a.name===n);
+    let item = document.createElement('label');
+    item.className = 'actor-check-item' + (already?' disabled':'');
+    item.innerHTML = `<input type="checkbox" value="${n}" ${already?'disabled checked':''}> <span class="actor-check-name">${n}</span>${already?' <span style="color:#666;font-size:11px">（已添加）</span>':''}`;
+    // 点击整行也能切换复选框（仅未禁用的）
+    if(!already){
+      item.onclick = function(e){
+        let cb = this.querySelector('input[type="checkbox"]');
+        if(e.target!==cb) cb.checked = !cb.checked;
+      };
+    }
+    list.appendChild(item);
   });
   document.getElementById('customActorName').value = '';
   document.getElementById('saveToLib').checked = true;
   document.getElementById('addActorModal').style.display = 'flex';
 };
 
-window.confirmAddActor = async function(){
-  let sel = document.getElementById('pickActorSelect');
-  let customName = document.getElementById('customActorName').value.trim();
+// 确认添加选中的资料库演员（多选）
+window.confirmAddActors = async function(){
+  let list = document.getElementById('actorCheckList');
+  let checked = list.querySelectorAll('input[type="checkbox"]:checked:not(:disabled)');
   let saveToLib = document.getElementById('saveToLib').checked;
-  let nameToAdd = sel.value || customName;
-  if(!nameToAdd){alert('请选择或输入演员名称');return;}
-  // 如果自定义名称且要保存到资料库
-  if(saveToLib && !names.includes(nameToAdd)){
-    names.push(nameToAdd);
+  let added = [];
+  checked.forEach(cb=>{
+    let n = cb.value;
+    if(inputActors.find(a=>a.name===n)) return; // 防重复
+    let idx = names.indexOf(n);
+    let avatar = idx>=0 ? (avatars[idx]||DEFAULT_AVATAR) : DEFAULT_AVATAR;
+    inputActors.push({name:n, avatar});
+    added.push(n);
+  });
+  if(!added.length){alert('请勾选要添加的演员');return;}
+  document.getElementById('addActorModal').style.display = 'none';
+  renderInputs();
+};
+
+// 添加自定义演员
+window.confirmAddCustomActor = async function(){
+  let customName = document.getElementById('customActorName').value.trim();
+  if(!customName){alert('请输入演员名称');return;}
+  let saveToLib = document.getElementById('saveToLib').checked;
+  // 如果需要保存到资料库
+  if(saveToLib && !names.includes(customName)){
+    names.push(customName);
     avatars.push(DEFAULT_AVATAR);
-    // 同步保存到本届次资料库
     if(curEd){
       let {error} = await sb.from('editions').update({players:names, avatars:avatars}).eq('id',curEd.id);
       if(!error){ curEd.players = names; curEd.avatars = avatars; }
     }
   }
-  let idx = names.indexOf(nameToAdd);
-  let avatar = idx>=0 ? (avatars[idx]||DEFAULT_AVATAR) : DEFAULT_AVATAR;
-  inputActors.push({name:nameToAdd, avatar});
+  if(!inputActors.find(a=>a.name===customName)){
+    inputActors.push({name:customName, avatar:DEFAULT_AVATAR});
+  }
   document.getElementById('addActorModal').style.display = 'none';
   renderInputs();
 };
@@ -497,7 +514,6 @@ function renderInputs(){
     </div>
   `).join('');
 
-  // 绑定名字编辑事件
   c.querySelectorAll('.player-name-input').forEach(inp=>{
     inp.addEventListener('input', function(){
       let idx = +this.dataset.idx;
@@ -522,7 +538,7 @@ function renderInputs(){
 // ===== 提交本局 =====
 async function addRound(){
   if(!curEd){alert('请先创建届次');return;}
-  let result = document.getElementById('roundResult').value; // 'win'|'lose'|''
+  let result = document.getElementById('roundResult').value;
   let row=[], has=false;
   document.querySelectorAll('#playerInputs .player-card').forEach((c,i)=>{
     let k=+c.querySelector('.k').value||0;
@@ -576,11 +592,9 @@ function renderRank(){
     tb.innerHTML='<tr><td colspan="8" style="color:#666">暂无数据</td></tr>';
     return;
   }
-  // 收集所有出现过的演员名
-  let actorMap = {}; // name -> {k,d,a,rt,adr,count}
+  let actorMap = {};
   rounds.forEach(r=>{
     r.data.forEach((p,idx)=>{
-      // 优先用 p.name，没有则用 names[idx]（兼容v1无name字段的旧数据）
       let n = p.name || (names[idx]||'未知');
       if(!actorMap[n]) actorMap[n]={k:0,d:0,a:0,rt:0,adr:0,count:0};
       actorMap[n].k   += p.k||0;
@@ -620,10 +634,9 @@ function renderLogs(){
     c.innerHTML+='<div style="color:#666;text-align:center;padding:20px">暂无数据</div>';
     return;
   }
-  // 倒序：最新在上
   let sorted = [...rounds].reverse();
   sorted.forEach((r,revIdx)=>{
-    let realIdx = rounds.length - revIdx; // 真实局数
+    let realIdx = rounds.length - revIdx;
     let d = document.createElement('div');
     d.className='round-item';
     let resultBadge = r.result
@@ -653,7 +666,6 @@ function renderLogs(){
 // ===== 总渲染 =====
 function renderAll(){
   document.getElementById('roundCount').textContent = rounds.length;
-  // 统计胜负
   let wins = rounds.filter(r=>r.result==='win').length;
   let loses = rounds.filter(r=>r.result==='lose').length;
   document.getElementById('winCount').textContent  = wins;
