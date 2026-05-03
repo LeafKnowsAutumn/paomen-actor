@@ -254,6 +254,15 @@ async function initSB(){
   }catch(e){ return false; }
 }
 
+// ===== 确保数据库表结构正确 =====
+async function ensureTables(){
+  // 尝试 select result 字段，如果失败说明字段不存在，需要提示用户手动执行SQL
+  let {error} = await sb.from('rounds').select('result').limit(1);
+  if(error && error.message && error.message.includes('result')){
+    alert('⚠️ 数据库缺少 result 字段，请在 Supabase SQL Editor 执行：\n\nALTER TABLE public.rounds ADD COLUMN IF NOT EXISTS result TEXT;\nALTER TABLE public.editions DISABLE ROW LEVEL SECURITY;\nALTER TABLE public.rounds DISABLE ROW LEVEL SECURITY;');
+  }
+}
+
 // ===== 加载所有届次（最新在前）=====
 async function loadEditions(){
   let {data,error} = await sb.from('editions').select('*').order('id',{ascending:false});
@@ -656,7 +665,10 @@ function renderAll(){
 
 // ===== 启动 =====
 (async ()=>{
-  if(await initSB()) await loadEditions();
+  if(await initSB()){
+    await ensureTables();
+    await loadEditions();
+  }
   document.getElementById('addBtn').onclick = addRound;
   document.getElementById('clearBtn').onclick = clearAll;
   ['editionModal','actorModal','addActorModal'].forEach(id=>{
