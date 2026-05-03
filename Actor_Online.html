@@ -433,15 +433,15 @@ window.removeInputActor = removeInputActor;
 // ===== 加演员弹窗 =====
 window.showAddActorModal = function(){
   let sel = document.getElementById('pickActorSelect');
-  sel.innerHTML = '<option value="">-- 请选择 --</option>';
-  // 资料库中未加入本局录入区的演员
+  sel.innerHTML = '<option value="">-- 请选择资料库演员 --</option>';
+  // 显示资料库所有演员，已添加的标注"已添加"
   names.forEach((n,i)=>{
-    if(!inputActors.find(a=>a.name===n)){
-      let o = document.createElement('option');
-      o.value = n;
-      o.textContent = n;
-      sel.appendChild(o);
-    }
+    let o = document.createElement('option');
+    o.value = n;
+    o.textContent = inputActors.find(a=>a.name===n)
+      ? n + '（已添加，可重复添加）'
+      : n;
+    sel.appendChild(o);
   });
   document.getElementById('customActorName').value = '';
   document.getElementById('saveToLib').checked = true;
