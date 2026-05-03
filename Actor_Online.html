@@ -302,12 +302,13 @@ async function switchEd(id){
   inputActors = names.map((n,i)=>({name:n, avatar:avatars[i]||DEFAULT_AVATAR}));
 
   let {data,error} = await sb.from('rounds').select('id,data,created_at,result').eq('edition_id',id).order('id');
-  rounds = error||!data ? [] : data.map(r=>({
+  if(error){ console.error('加载对局数据失败:', error); alert('⚠️ 加载对局数据失败：\n'+error.message+'\n\n请检查 Supabase RLS 权限设置'); rounds=[]; }
+  else { rounds = data.map(r=>({
     id:r.id,
     data:r.data,
     created_at:r.created_at,
     result:r.result||''
-  }));
+  })); }
   document.getElementById('mainTitle').textContent = '🔥 ' + ev.name;
   let timeStr = (ev.start_date||'') + (ev.end_date?' ~ '+ev.end_date:'');
   renderEdBar();
