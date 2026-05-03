@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>2026鐐棬婕斿憳浜夐湼璧?/title>
+<title>2026炮门演员争霸赛</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Microsoft YaHei}
 body{background:#1a1c23;color:#fff;padding:20px;max-width:1200px;margin:0 auto}
 .title{text-align:center;color:#ff4655;margin:0 0 20px;font-size:24px}
 
-/* 灞婃鏍?*/
+/* 届次栏 */
 .edition-bar{background:#252933;padding:12px 15px;border-radius:8px;margin-bottom:15px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .edition-bar .label{color:#aaa;font-size:13px}
 .edition-bar .ed-btn{padding:5px 12px;border-radius:20px;border:1px solid #3a4150;background:transparent;color:#aaa;cursor:pointer;font-size:12px}
@@ -17,7 +17,7 @@ body{background:#1a1c23;color:#fff;padding:20px;max-width:1200px;margin:0 auto}
 .ed-btn.active{background:#ff4655;color:#fff;border-color:#ff4655}
 .edition-bar .right-btns{margin-left:auto;display:flex;gap:8px}
 
-/* 寮圭獥 */
+/* 弹窗 */
 .modal-mask{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:999}
 .modal{background:#252933;padding:20px;border-radius:12px;width:90%;max-width:540px;max-height:85vh;overflow-y:auto}
 .modal h3{color:#ff4655;margin-bottom:15px}
@@ -29,7 +29,17 @@ body{background:#1a1c23;color:#fff;padding:20px;max-width:1200px;margin:0 auto}
 .btn-red{background:#dc3545;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:12px}
 .btn-save{background:#ff4655;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;width:100%;margin-top:10px;font-size:13px}
 
-/* 婕斿憳绠＄悊寮圭獥 */
+/* 加演员弹窗 */
+.add-actor-modal .pick-row{display:flex;gap:10px;margin-bottom:12px;align-items:center}
+.add-actor-modal .pick-row label{color:#aaa;font-size:13px;white-space:nowrap}
+.add-actor-modal select,.add-actor-modal input[type="text"]{flex:1;padding:6px 8px;background:#3a4150;color:#fff;border:1px solid #3a4150;border-radius:4px;font-size:13px}
+.add-actor-modal .custom-row{display:flex;gap:10px;margin-bottom:12px;align-items:center}
+.add-actor-modal .custom-row input[type="text"]{flex:1;padding:6px 8px;background:#3a4150;color:#fff;border:1px solid #3a4150;border-radius:4px;font-size:13px}
+.add-actor-modal .save-check{display:flex;align-items:center;gap:6px;margin-bottom:14px;color:#aaa;font-size:13px}
+.add-actor-modal .save-check input[type="checkbox"]{width:16px;height:16px;accent-color:#28a745}
+.add-actor-modal .btn-add{background:#28a745;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;width:100%;font-size:13px}
+
+/* 演员管理弹窗 */
 .actor-item{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px;background:#3a4150;border-radius:8px}
 .actor-item img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #ff4655;flex-shrink:0}
 .actor-item .actor-fields{flex:1;display:flex;flex-direction:column;gap:6px}
@@ -39,7 +49,7 @@ body{background:#1a1c23;color:#fff;padding:20px;max-width:1200px;margin:0 auto}
 .input-section{background:#252933;padding:15px;border-radius:10px;margin-bottom:20px}
 .section-title{color:#ff4655;margin:0 0 10px;font-size:18px}
 
-/* 褰曞叆鍖?- 婕斿憳鍗＄墖 */
+/* 录入区 - 演员卡片 */
 .input-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
 .round-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .win-select{padding:6px 12px;border-radius:6px;border:1px solid #3a4150;background:#2d323f;color:#fff;font-size:13px;cursor:pointer}
@@ -59,7 +69,7 @@ body{background:#1a1c23;color:#fff;padding:20px;max-width:1200px;margin:0 auto}
 .btn-reset{background:#6c757d;color:#fff;border:none;border-radius:6px;padding:8px 12px;cursor:pointer;font-size:13px}
 .btn-add-actor{background:#2a4a3a;color:#28a745;border:1px solid #28a745;border-radius:6px;padding:8px 12px;cursor:pointer;font-size:13px}
 
-/* 瀹炲姏琛?*/
+/* 实力表 */
 .result-section{background:#252933;padding:15px;border-radius:10px;margin-bottom:20px;overflow-x:auto}
 .stat-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
 .stat-table th,.stat-table td{padding:8px 6px;text-align:center;border-bottom:1px solid #3a4150}
@@ -67,7 +77,7 @@ body{background:#1a1c23;color:#fff;padding:20px;max-width:1200px;margin:0 auto}
 .avg-rt{color:#ff4655;font-weight:bold}
 .avg-adr{color:#f0a500;font-weight:bold}
 
-/* 姣忓眬璇︽儏 */
+/* 每局详情 */
 .round-detail{background:#252933;padding:15px;border-radius:10px;margin-bottom:20px}
 .round-item{background:#2d323f;padding:10px;margin-bottom:8px;border-radius:8px}
 .round-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:6px}
@@ -99,96 +109,118 @@ body{background:#1a1c23;color:#fff;padding:20px;max-width:1200px;margin:0 auto}
 </head>
 <body>
 
-<!-- 灞婃鏍?-->
+<!-- 届次栏 -->
 <div class="edition-bar" id="editionBar">
-  <span class="label">灞婃锛?/span>
-  <button class="btn-reset" style="font-size:12px" onclick="showNewEdition()">锛?鏂板缓</button>
+  <span class="label">届次：</span>
+  <button class="btn-reset" style="font-size:12px" onclick="showNewEdition()">＋ 新建</button>
   <div class="right-btns">
-    <button class="btn-reset" style="font-size:12px" onclick="showActorMgr()">馃幁 婕斿憳</button>
+    <button class="btn-reset" style="font-size:12px" onclick="showActorMgr()">🎭 演员</button>
   </div>
 </div>
 
-<h1 class="title" id="mainTitle">馃敟 2026鐐棬绗竴灞婃紨鍛樹簤闇歌禌</h1>
+<h1 class="title" id="mainTitle">🔥 2026炮门第一届演员争霸赛</h1>
 
-<!-- 鐘舵€佹爮锛氬満娆?+ 鑳滆礋 -->
+<!-- 状态栏：场次 + 胜负 -->
 <div class="status-bar">
-  <div class="info">鍏?<span id="roundCount">0</span> 灞€鏁版嵁</div>
-  <div class="wl">鎴樼哗锛?span class="w" id="winCount">0</span> 鑳?<span class="l" id="loseCount">0</span> 璐?/div>
-  <div class="info" id="lastUpdate">绛夊緟鏁版嵁鍔犺浇...</div>
+  <div class="info">共 <span id="roundCount">0</span> 局数据</div>
+  <div class="wl">战绩：<span class="w" id="winCount">0</span> 胜 <span class="l" id="loseCount">0</span> 负</div>
+  <div class="info" id="lastUpdate">等待数据加载...</div>
 </div>
 
-<!-- 婕斿憳瀹炲姏琛?-->
+<!-- 演员实力表 -->
 <div class="result-section">
-  <h2 class="section-title">馃幁 婕斿憳瀹炲姏琛?/h2>
+  <h2 class="section-title">🎭 演员实力表</h2>
   <table class="stat-table">
-    <thead><tr><th>鎺掑悕</th><th>婕斿憳</th><th>鎬籏</th><th>鎬籇</th><th>鎬籄</th><th>骞冲潎RT</th><th>骞冲潎ADR</th><th>鍦烘</th></tr></thead>
+    <thead><tr><th>排名</th><th>演员</th><th>总K</th><th>总D</th><th>总A</th><th>平均RT</th><th>平均ADR</th><th>场次</th></tr></thead>
     <tbody id="rankBody"></tbody>
   </table>
 </div>
 
-<!-- 姣忓眬鏁版嵁璇︽儏 -->
+<!-- 每局数据详情 -->
 <div class="round-detail" id="logs">
-  <h2 class="section-title">馃搵 姣忓眬鏁版嵁璇︽儏</h2>
-  <div id="loading">姝ｅ湪鍔犺浇鏁版嵁...</div>
+  <h2 class="section-title">📋 每局数据详情</h2>
+  <div id="loading">正在加载数据...</div>
 </div>
 
-<!-- 褰曞叆鍖?-->
+<!-- 录入区 -->
 <div class="input-section">
   <div class="input-header">
-    <h2 class="section-title" style="margin:0">馃摑 褰曞叆鏈眬鏁版嵁</h2>
+    <h2 class="section-title" style="margin:0">📝 录入本局数据</h2>
     <div class="round-meta">
       <select class="win-select" id="roundResult">
-        <option value="">鑳滆礋</option>
-        <option value="win">馃弳 鑳?/option>
-        <option value="lose">馃拃 璐?/option>
+        <option value="">胜负</option>
+        <option value="win">🏆 胜</option>
+        <option value="lose">💀 负</option>
       </select>
-      <button class="btn-add-actor" onclick="addTempActor()">锛?鍔犳紨鍛?/button>
+      <button class="btn-add-actor" onclick="showAddActorModal()">＋ 加演员</button>
     </div>
   </div>
   <div class="player-inputs" id="playerInputs"></div>
   <div class="btn-group">
-    <button class="btn-submit" id="addBtn">鉁?鎻愪氦鏈眬</button>
-    <button class="btn-reset" id="clearBtn">馃棏 娓呯┖鏈眾</button>
+    <button class="btn-submit" id="addBtn">✅ 提交本局</button>
+    <button class="btn-reset" id="clearBtn">🗑 清空本届</button>
   </div>
 </div>
 
-<!-- 鏂板缓灞婃寮圭獥 -->
+<!-- 新建届次弹窗 -->
 <div class="modal-mask" id="editionModal" style="display:none">
   <div class="modal">
-    <h3>馃弳 鏂板缓灞婃</h3>
+    <h3>🏆 新建届次</h3>
     <div style="margin-bottom:12px">
-      <label>灞婃鍚嶇О</label>
-      <input id="edName" placeholder="濡傦細2026鐐棬绗簩灞婃紨鍛樹簤闇歌禌">
+      <label>届次名称</label>
+      <input id="edName" placeholder="如：2026炮门第二届演员争霸赛">
     </div>
     <div class="row">
-      <div><label>寮€濮嬫椂闂?/label><input id="edStart" type="date"></div>
-      <div><label>缁撴潫鏃堕棿</label><input id="edEnd" type="date"></div>
+      <div><label>开始时间</label><input id="edStart" type="date"></div>
+      <div><label>结束时间</label><input id="edEnd" type="date"></div>
     </div>
-    <button class="btn-save" onclick="createEdition()">鉁?鍒涘缓</button>
+    <button class="btn-save" onclick="createEdition()">✅ 创建</button>
   </div>
 </div>
 
-<!-- 婕斿憳绠＄悊寮圭獥 -->
+<!-- 演员管理弹窗 -->
 <div class="modal-mask" id="actorModal" style="display:none">
   <div class="modal">
-    <h3>馃幁 婕斿憳璧勬枡搴?/h3>
+    <h3>🎭 演员资料库</h3>
     <div id="actorList"></div>
-    <button class="btn-green" onclick="addActorRow()" style="margin:10px 0 4px">锛?娣诲姞婕斿憳</button>
-    <button class="btn-save" onclick="saveActors()">馃捑 淇濆瓨</button>
+    <button class="btn-green" onclick="addActorRow()" style="margin:10px 0 4px">＋ 添加演员</button>
+    <button class="btn-save" onclick="saveActors()">💾 保存</button>
+  </div>
+</div>
+
+<!-- 加演员弹窗 -->
+<div class="modal-mask" id="addActorModal" style="display:none">
+  <div class="modal add-actor-modal">
+    <h3>➕ 添加演员到本局</h3>
+    <div class="pick-row">
+      <label>选择资料库演员：</label>
+      <select id="pickActorSelect" style="flex:1;padding:6px 8px;background:#3a4150;color:#fff;border:1px solid #3a4150;border-radius:4px;font-size:13px">
+        <option value="">-- 请选择 --</option>
+      </select>
+    </div>
+    <div class="custom-row">
+      <label style="color:#aaa;font-size:13px;white-space:nowrap">或自定义名称：</label>
+      <input type="text" id="customActorName" placeholder="输入演员名称" style="flex:1">
+    </div>
+    <div class="save-check">
+      <input type="checkbox" id="saveToLib" checked>
+      <label for="saveToLib" style="color:#aaa;font-size:13px">同时保存到演员资料库</label>
+    </div>
+    <button class="btn-add" onclick="confirmAddActor()">✅ 确认添加</button>
   </div>
 </div>
 
 <script>
-// ===== 閰嶇疆 =====
+// ===== 配置 =====
 const SUPABASE_URL = 'https://jucftwuhdcimdcsrncok.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1Y2Z0d3VoZGNpbWRjc3JuY29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MTA5NzEsImV4cCI6MjA5MzA4Njk3MX0.YZXRe4yQL_CT-JkCtEYrnfWCjbxj_uveoQqot-x9QII';
 
-// ===== 鐘舵€?=====
+// ===== 状态 =====
 let sb = null;
 let editions = [];
 let curEd = null;
 let rounds = [];
-let names = ["ZyWOo","Donk","鑰佺櫥","浼婄瑱","骞芥湀"];
+let names = ["ZyWOo","Donk","老登","伊笙","幽月"];
 let avatars = [
   "https://raw.githubusercontent.com/LeafKnowsAutumn/paomen-actor/main/images/zywoo.jpg",
   "https://raw.githubusercontent.com/LeafKnowsAutumn/paomen-actor/main/images/donk.jpg",
@@ -198,10 +230,10 @@ let avatars = [
 ];
 const DEFAULT_AVATAR = "https://raw.githubusercontent.com/LeafKnowsAutumn/paomen-actor/main/images/paomen.jpg";
 
-// 褰曞叆鍖轰复鏃舵紨鍛樺垪琛紙鍙笌 names 涓嶅悓锛屾敮鎸佸鍒狅級
+// 录入区临时演员列表（可与 names 不同，支持增删）
 let inputActors = []; // [{name, avatar}]
 
-// ===== 宸ュ叿 =====
+// ===== 工具 =====
 function calcRT(k,d){ if(!d) return k; return parseFloat((k/d).toFixed(2)) }
 
 async function loadScript(src){
@@ -212,7 +244,7 @@ async function loadScript(src){
   });
 }
 
-// ===== 鍒濆鍖?Supabase =====
+// ===== 初始化 Supabase =====
 async function initSB(){
   try{
     await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
@@ -222,20 +254,20 @@ async function initSB(){
   }catch(e){ return false; }
 }
 
-// ===== 鍔犺浇鎵€鏈夊眾娆?=====
+// ===== 加载所有届次（最新在前）=====
 async function loadEditions(){
-  let {data,error} = await sb.from('editions').select('*').order('id');
+  let {data,error} = await sb.from('editions').select('*').order('id',{ascending:false});
   if(error) return;
   editions = data||[];
   renderEdBar();
   if(editions.length){
-    switchEd(editions[editions.length-1].id);
+    switchEd(editions[0].id);
   }else{
     showNewEdition();
   }
 }
 
-// ===== 娓叉煋灞婃鏍?=====
+// ===== 渲染届次栏（最新在前）=====
 function renderEdBar(){
   let bar = document.getElementById('editionBar');
   let label = bar.querySelector('.label');
@@ -243,10 +275,11 @@ function renderEdBar(){
   let right = bar.querySelector('.right-btns');
   bar.innerHTML = '';
   bar.appendChild(label);
+  // editions 已按 id 倒序，直接渲染（最新在最前面）
   editions.forEach(ev=>{
     let b = document.createElement('button');
     b.className = 'ed-btn' + (curEd && curEd.id===ev.id?' active':'');
-    b.textContent = ev.name.replace('2026鐐棬','').replace('婕斿憳浜夐湼璧?,'');
+    b.textContent = ev.name.replace('2026炮门','').replace('演员争霸赛','');
     b.onclick = ()=>switchEd(ev.id);
     bar.appendChild(b);
   });
@@ -254,7 +287,7 @@ function renderEdBar(){
   bar.appendChild(right);
 }
 
-// ===== 鍒囨崲灞婃 =====
+// ===== 切换届次 =====
 async function switchEd(id){
   let ev = editions.find(e=>e.id===id);
   if(!ev) return;
@@ -265,12 +298,12 @@ async function switchEd(id){
   }else{
     avatars = names.map(()=>DEFAULT_AVATAR);
   }
-  // 鍒濆鍖栧綍鍏ュ尯婕斿憳鍒楄〃
+  // 初始化录入区演员列表
   inputActors = names.map((n,i)=>({name:n, avatar:avatars[i]||DEFAULT_AVATAR}));
 
   let {data,error} = await sb.from('rounds').select('id,data,created_at').eq('edition_id',id).order('id');
   rounds = error||!data ? [] : data.map(r=>({id:r.id, data:r.data, created_at:r.created_at}));
-  document.getElementById('mainTitle').textContent = '馃敟 ' + ev.name;
+  document.getElementById('mainTitle').textContent = '🔥 ' + ev.name;
   let timeStr = (ev.start_date||'') + (ev.end_date?' ~ '+ev.end_date:'');
   renderEdBar();
   let existingTime = document.getElementById('edTimeDisplay');
@@ -283,12 +316,12 @@ async function switchEd(id){
   existingTime.textContent = timeStr;
   renderInputs();
   renderAll();
-  document.getElementById('lastUpdate').textContent = '鏈€鍚庢洿鏂? '+new Date().toLocaleTimeString('zh-CN');
+  document.getElementById('lastUpdate').textContent = '最后更新: '+new Date().toLocaleTimeString('zh-CN');
 }
 
-// ===== 鏂板缓灞婃寮圭獥 =====
+// ===== 新建届次弹窗 =====
 function showNewEdition(){
-  document.getElementById('edName').value = '2026鐐棬绗?+(editions.length+1)+'灞婃紨鍛樹簤闇歌禌';
+  document.getElementById('edName').value = '2026炮门第'+(editions.length+1)+'届演员争霸赛';
   document.getElementById('edStart').value = new Date().toISOString().slice(0,10);
   document.getElementById('edEnd').value = '';
   document.getElementById('editionModal').style.display = 'flex';
@@ -299,15 +332,15 @@ async function createEdition(){
   let name = document.getElementById('edName').value.trim();
   let start = document.getElementById('edStart').value;
   let end = document.getElementById('edEnd').value;
-  if(!name){alert('璇疯緭鍏ュ悕绉?);return;}
+  if(!name){alert('请输入名称');return;}
   let {data,error} = await sb.from('editions').insert([{name, start_date:start, end_date:end, players:names, avatars:avatars}]).select();
-  if(error){alert('鍒涘缓澶辫触:'+error.message);return;}
+  if(error){alert('创建失败:'+error.message);return;}
   editions.push(data[0]);
   document.getElementById('editionModal').style.display = 'none';
   switchEd(data[0].id);
 }
 
-// ===== 婕斿憳璧勬枡搴撶鐞?=====
+// ===== 演员资料库管理 =====
 function showActorMgr(){
   renderActorList();
   document.getElementById('actorModal').style.display = 'flex';
@@ -324,12 +357,12 @@ function renderActorList(){
     item.innerHTML = `
       <img src="${avUrl}" onerror="this.src='${DEFAULT_AVATAR}'" data-idx="${i}">
       <div class="actor-fields">
-        <input type="text" value="${n}" placeholder="婕斿憳鍚? data-field="name" data-idx="${i}">
-        <input type="text" value="${avUrl===DEFAULT_AVATAR?'':avUrl}" placeholder="澶村儚URL锛堢暀绌虹敤榛樿澶村儚锛? data-field="avatar" data-idx="${i}">
+        <input type="text" value="${n}" placeholder="演员名" data-field="name" data-idx="${i}">
+        <input type="text" value="${avUrl===DEFAULT_AVATAR?'':avUrl}" placeholder="头像URL（留空用默认头像）" data-field="avatar" data-idx="${i}">
       </div>
-      <button class="btn-red" onclick="removeActor(${i})" style="flex-shrink:0">鍒犻櫎</button>
+      <button class="btn-red" onclick="removeActor(${i})" style="flex-shrink:0">删除</button>
     `;
-    // 缁戝畾杈撳叆浜嬩欢
+    // 绑定输入事件
     let nameInp = item.querySelector('[data-field="name"]');
     let avInp   = item.querySelector('[data-field="avatar"]');
     let img     = item.querySelector('img');
@@ -343,14 +376,14 @@ function renderActorList(){
 }
 
 function addActorRow(){
-  names.push('鏂版紨鍛?);
+  names.push('新演员');
   avatars.push(DEFAULT_AVATAR);
   renderActorList();
 }
 window.addActorRow = addActorRow;
 
 function removeActor(i){
-  if(names.length<=1){alert('鑷冲皯淇濈暀1鍚嶆紨鍛?);return;}
+  if(names.length<=1){alert('至少保留1名演员');return;}
   names.splice(i,1);
   avatars.splice(i,1);
   renderActorList();
@@ -358,54 +391,103 @@ function removeActor(i){
 window.removeActor = removeActor;
 
 async function saveActors(){
-  if(names.length<1){alert('鑷冲皯1鍚嶆紨鍛?);return;}
+  if(names.length<1){alert('至少1名演员');return;}
   if(!curEd) return;
   let {error} = await sb.from('editions').update({players:names, avatars:avatars}).eq('id',curEd.id);
   if(!error){ curEd.players=names; curEd.avatars=avatars; }
-  // 鍚屾褰曞叆鍖烘紨鍛樺垪琛?  inputActors = names.map((n,i)=>({name:n, avatar:avatars[i]||DEFAULT_AVATAR}));
+  // 同步录入区演员列表
+  inputActors = names.map((n,i)=>({name:n, avatar:avatars[i]||DEFAULT_AVATAR}));
   document.getElementById('actorModal').style.display = 'none';
   renderInputs();
   renderAll();
 }
 window.saveActors = saveActors;
 
-// ===== 褰曞叆鍖猴細鍦ㄦ湰灞€涓存椂鍔犳紨鍛?=====
+// ===== 录入区：在本局临时加演员 =====
 function addTempActor(){
-  // 寮瑰嚭閫夋嫨妗嗭紝浠巒ames閲岄€変竴涓湭鍦╥nputActors涓殑锛屾垨鎵嬪姩杈撳叆
+  // 弹出选择框，从names里选一个未在inputActors中的，或手动输入
   let unused = names.filter(n=>!inputActors.find(a=>a.name===n));
   if(unused.length){
     let n = unused[0];
     let idx = names.indexOf(n);
     inputActors.push({name:n, avatar:avatars[idx]||DEFAULT_AVATAR});
   }else{
-    inputActors.push({name:'涓存椂婕斿憳', avatar:DEFAULT_AVATAR});
+    inputActors.push({name:'临时演员', avatar:DEFAULT_AVATAR});
   }
   renderInputs();
 }
 window.addTempActor = addTempActor;
 
 function removeInputActor(i){
-  if(inputActors.length<=1){alert('鑷冲皯淇濈暀1鍚嶆紨鍛?);return;}
+  if(inputActors.length<=1){alert('至少保留1名演员');return;}
   inputActors.splice(i,1);
   renderInputs();
 }
 window.removeInputActor = removeInputActor;
 
-// ===== 娓叉煋褰曞叆杈撳叆鍗＄墖 =====
+// ===== 加演员弹窗 =====
+window.showAddActorModal = function(){
+  let sel = document.getElementById('pickActorSelect');
+  sel.innerHTML = '<option value="">-- 请选择 --</option>';
+  // 资料库中未加入本局录入区的演员
+  names.forEach((n,i)=>{
+    if(!inputActors.find(a=>a.name===n)){
+      let o = document.createElement('option');
+      o.value = n;
+      o.textContent = n;
+      sel.appendChild(o);
+    }
+  });
+  document.getElementById('customActorName').value = '';
+  document.getElementById('saveToLib').checked = true;
+  document.getElementById('addActorModal').style.display = 'flex';
+};
+
+window.confirmAddActor = async function(){
+  let sel = document.getElementById('pickActorSelect');
+  let customName = document.getElementById('customActorName').value.trim();
+  let saveToLib = document.getElementById('saveToLib').checked;
+  let nameToAdd = sel.value || customName;
+  if(!nameToAdd){alert('请选择或输入演员名称');return;}
+  // 如果自定义名称且要保存到资料库
+  if(saveToLib && !names.includes(nameToAdd)){
+    names.push(nameToAdd);
+    avatars.push(DEFAULT_AVATAR);
+    // 同步保存到本届次资料库
+    if(curEd){
+      let {error} = await sb.from('editions').update({players:names, avatars:avatars}).eq('id',curEd.id);
+      if(!error){ curEd.players = names; curEd.avatars = avatars; }
+    }
+  }
+  let idx = names.indexOf(nameToAdd);
+  let avatar = idx>=0 ? (avatars[idx]||DEFAULT_AVATAR) : DEFAULT_AVATAR;
+  inputActors.push({name:nameToAdd, avatar});
+  document.getElementById('addActorModal').style.display = 'none';
+  renderInputs();
+};
 function renderInputs(){
   let c = document.getElementById('playerInputs');
   c.innerHTML = inputActors.map((actor,i)=>`
     <div class="player-card" data-idx="${i}">
-      <button class="card-del" onclick="removeInputActor(${i})" title="绉婚櫎">鉁?/button>
+      <button class="card-del" onclick="removeInputActor(${i})" title="移除">✕</button>
       <img src="${actor.avatar}" class="player-avatar" onerror="this.src='${DEFAULT_AVATAR}'">
-      <div class="player-name">${actor.name}</div>
-      <div class="input-group"><label>K</label><input type="number" class="k" min="0" placeholder="鍑绘潃"></div>
-      <div class="input-group"><label>D</label><input type="number" class="d" min="0" placeholder="姝讳骸"></div>
-      <div class="input-group"><label>A</label><input type="number" class="a" min="0" placeholder="鍔╂敾"></div>
-      <div class="input-group"><label>RT</label><input type="text" class="rtxt" placeholder="鎵嬪姩杈撳叆RT" style="background:#2d323f;color:#ff4655;font-weight:bold;border:1px solid #3a4150;text-align:center;font-size:12px"></div>
+      <input class="player-name-input" value="${actor.name}" placeholder="演员名" data-idx="${i}"
+             style="width:90%;margin:4px auto 6px;padding:4px;background:#3a4150;color:#ff4655;font-weight:bold;border:1px solid #3a4150;border-radius:4px;font-size:12px;text-align:center;display:block">
+      <div class="input-group"><label>K</label><input type="number" class="k" min="0" placeholder="击杀"></div>
+      <div class="input-group"><label>D</label><input type="number" class="d" min="0" placeholder="死亡"></div>
+      <div class="input-group"><label>A</label><input type="number" class="a" min="0" placeholder="助攻"></div>
+      <div class="input-group"><label>RT</label><input type="text" class="rtxt" placeholder="手动输入RT" style="background:#2d323f;color:#ff4655;font-weight:bold;border:1px solid #3a4150;text-align:center;font-size:12px"></div>
       <div class="input-group"><label>ADR</label><input type="number" class="adr" min="0" step="0.1" placeholder="ADR"></div>
     </div>
   `).join('');
+
+  // 绑定名字编辑事件
+  c.querySelectorAll('.player-name-input').forEach(inp=>{
+    inp.addEventListener('input', function(){
+      let idx = +this.dataset.idx;
+      if(inputActors[idx]) inputActors[idx].name = this.value.trim() || '未命名';
+    });
+  });
 
   c.querySelectorAll('.player-card').forEach(card=>{
     let ki=card.querySelector('.k'), di=card.querySelector('.d'), rt=card.querySelector('.rtxt');
@@ -421,9 +503,9 @@ function renderInputs(){
   });
 }
 
-// ===== 鎻愪氦鏈眬 =====
+// ===== 提交本局 =====
 async function addRound(){
-  if(!curEd){alert('璇峰厛鍒涘缓灞婃');return;}
+  if(!curEd){alert('请先创建届次');return;}
   let result = document.getElementById('roundResult').value; // 'win'|'lose'|''
   let row=[], has=false;
   document.querySelectorAll('#playerInputs .player-card').forEach((c,i)=>{
@@ -437,51 +519,51 @@ async function addRound(){
     if(k||d||a||adr) has=true;
     row.push({k,d,a,rt,adr,name});
   });
-  if(!has){alert('璇峰～鍐欐暟鎹?);return;}
+  if(!has){alert('请填写数据');return;}
   let payload={data:row, edition_id:curEd.id};
   if(result) payload.result=result;
   let {data,error} = await sb.from('rounds').insert([payload]).select();
-  if(error){alert('鎻愪氦澶辫触:'+error.message);return;}
+  if(error){alert('提交失败:'+error.message);return;}
   rounds.push({id:data[0].id, data:row, created_at:data[0].created_at, result:data[0].result||result});
   renderAll();
   document.querySelectorAll('#playerInputs .k,.d,.a,.adr').forEach(i=>i.value='');
   document.querySelectorAll('#playerInputs .rtxt').forEach(i=>i.value='-');
   document.getElementById('roundResult').value='';
-  document.getElementById('lastUpdate').textContent = '鏈€鍚庢洿鏂? '+new Date().toLocaleTimeString('zh-CN');
+  document.getElementById('lastUpdate').textContent = '最后更新: '+new Date().toLocaleTimeString('zh-CN');
 }
 
-// ===== 鍒犻櫎鏌愬眬 =====
+// ===== 删除某局 =====
 async function deleteRound(id){
-  if(!confirm('鍒犻櫎杩欎竴灞€锛?)) return;
+  if(!confirm('删除这一局？')) return;
   let {error} = await sb.from('rounds').delete().eq('id',id);
-  if(error){alert('鍒犻櫎澶辫触');return;}
+  if(error){alert('删除失败');return;}
   rounds = rounds.filter(r=>r.id!==id);
   renderAll();
 }
 
-// ===== 娓呯┖鏈眾 =====
+// ===== 清空本届 =====
 async function clearAll(){
-  if(!confirm('鈿狅笍 娓呯┖鏈眾鎵€鏈夋暟鎹紵涓嶅彲鎭㈠锛?)) return;
-  if(!confirm('鍐嶆纭锛?)) return;
+  if(!confirm('⚠️ 清空本届所有数据？不可恢复！')) return;
+  if(!confirm('再次确认？')) return;
   if(!rounds.length) return;
   let ids = rounds.map(r=>r.id);
   let {error} = await sb.from('rounds').delete().in('id',ids);
-  if(error){alert('娓呯┖澶辫触');return;}
+  if(error){alert('清空失败');return;}
   rounds=[]; renderAll();
 }
 
-// ===== 娓叉煋婕斿憳瀹炲姏琛?=====
+// ===== 渲染演员实力表 =====
 function renderRank(){
   let tb = document.getElementById('rankBody');
   if(!rounds.length){
-    tb.innerHTML='<tr><td colspan="8" style="color:#666">鏆傛棤鏁版嵁</td></tr>';
+    tb.innerHTML='<tr><td colspan="8" style="color:#666">暂无数据</td></tr>';
     return;
   }
-  // 鏀堕泦鎵€鏈夊嚭鐜拌繃鐨勬紨鍛樺悕
+  // 收集所有出现过的演员名
   let actorMap = {}; // name -> {k,d,a,rt,adr,count}
   rounds.forEach(r=>{
     r.data.forEach((p,idx)=>{
-      let n = p.name || names[idx] || '鏈煡';
+      let n = p.name || names[idx] || '未知';
       if(!actorMap[n]) actorMap[n]={k:0,d:0,a:0,rt:0,adr:0,count:0};
       actorMap[n].k   += p.k||0;
       actorMap[n].d   += p.d||0;
@@ -511,28 +593,30 @@ function renderRank(){
   `).join('');
 }
 
-// ===== 娓叉煋姣忓眬璇︽儏锛堟渶鏂板湪涓婏級 =====
+// ===== 渲染每局详情（最新在上） =====
 function renderLogs(){
   let c = document.getElementById('logs');
   let t = c.querySelector('.section-title');
   c.innerHTML=''; c.appendChild(t);
   if(!rounds.length){
-    c.innerHTML+='<div style="color:#666;text-align:center;padding:20px">鏆傛棤鏁版嵁</div>';
+    c.innerHTML+='<div style="color:#666;text-align:center;padding:20px">暂无数据</div>';
     return;
   }
-  // 鍊掑簭锛氭渶鏂板湪涓?  let sorted = [...rounds].reverse();
+  // 倒序：最新在上
+  let sorted = [...rounds].reverse();
   sorted.forEach((r,revIdx)=>{
-    let realIdx = rounds.length - revIdx; // 鐪熷疄灞€鏁?    let d = document.createElement('div');
+    let realIdx = rounds.length - revIdx; // 真实局数
+    let d = document.createElement('div');
     d.className='round-item';
     let resultBadge = r.result
-      ? `<span class="win-badge ${r.result}">${r.result==='win'?'鑳?:'璐?}</span>`
+      ? `<span class="win-badge ${r.result}">${r.result==='win'?'胜':'负'}</span>`
       : '';
     d.innerHTML=`
       <div class="round-item-header">
-        <span class="round-title">绗?{realIdx}灞€ 路 ${new Date(r.created_at).toLocaleString('zh-CN')}</span>
+        <span class="round-title">第${realIdx}局 · ${new Date(r.created_at).toLocaleString('zh-CN')}</span>
         <div style="display:flex;align-items:center;gap:8px">
           ${resultBadge}
-          <button class="btn-red" onclick="deleteRound(${r.id})">鍒犻櫎</button>
+          <button class="btn-red" onclick="deleteRound(${r.id})">删除</button>
         </div>
       </div>
       <div class="round-grid">${r.data.map((p,idx)=>`
@@ -548,10 +632,10 @@ function renderLogs(){
   });
 }
 
-// ===== 鎬绘覆鏌?=====
+// ===== 总渲染 =====
 function renderAll(){
   document.getElementById('roundCount').textContent = rounds.length;
-  // 缁熻鑳滆礋
+  // 统计胜负
   let wins = rounds.filter(r=>r.result==='win').length;
   let loses = rounds.filter(r=>r.result==='lose').length;
   document.getElementById('winCount').textContent  = wins;
@@ -561,12 +645,12 @@ function renderAll(){
   if(ld && rounds.length) ld.style.display='none';
 }
 
-// ===== 鍚姩 =====
+// ===== 启动 =====
 (async ()=>{
   if(await initSB()) await loadEditions();
   document.getElementById('addBtn').onclick = addRound;
   document.getElementById('clearBtn').onclick = clearAll;
-  ['editionModal','actorModal'].forEach(id=>{
+  ['editionModal','actorModal','addActorModal'].forEach(id=>{
     document.getElementById(id).addEventListener('click',function(e){
       if(e.target===this) this.style.display='none';
     });
