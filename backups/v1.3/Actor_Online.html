@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>2026炮门演员争霸赛</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Microsoft YaHei}
+body{background:#1a1c23;color:#fff;padding:20px;max-width:1200px;margin:0 auto}
+.title{text-align:center;color:#ff4655;margin:0 0 20px;font-size:24px}
+
+/* 届次栏 */
+.edition-bar{background:#252933;padding:12px 15px;border-radius:8px;margin-bottom:15px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.edition-bar .label{color:#aaa;font-size:13px}
+.edition-bar .ed-btn{padding:5px 12px;border-radius:20px;border:1px solid #3a4150;background:transparent;color:#aaa;cursor:pointer;font-size:12px}
+.ed-btn:hover{background:#3a4150}
+.ed-btn.active{background:#ff4655;color:#fff;border-color:#ff4655}
+.ed-edit-btn,.ed-delete-btn{background:transparent;border:none;cursor:pointer;padding:2px 4px;font-size:12px;opacity:0.5;transition:opacity .2s}
+.ed-edit-btn:hover,.ed-delete-btn:hover{opacity:1}
+.ed-delete-btn:hover{color:#dc3545}
+.edition-bar .right-btns{margin-left:auto;display:flex;gap:8px}
+
+/* 弹窗 */
+.modal-mask{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:999}
+.modal{background:#252933;padding:20px;border-radius:12px;width:90%;max-width:540px;max-height:85vh;overflow-y:auto}
+.modal h3{color:#ff4655;margin-bottom:15px}
+.modal label{color:#aaa;font-size:13px}
+.modal input,.modal select{width:100%;padding:6px 8px;background:#3a4150;color:#fff;border:none;border-radius:4px;margin-top:4px;font-size:13px}
+.modal .row{display:flex;gap:10px;margin-bottom:12px}
+.modal .row>div{flex:1}
+.btn-green{background:#28a745;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;width:100%;font-size:13px}
+.btn-red{background:#dc3545;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:12px}
+.btn-save{background:#ff4655;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;width:100%;margin-top:10px;font-size:13px}
+
+/* 添加演员弹窗-多选版 */
+.add-actor-modal .pick-row{display:flex;gap:10px;margin-bottom:12px;align-items:center}
+.add-actor-modal .pick-row label{color:#aaa;font-size:13px;white-space:nowrap}
+.add-actor-modal select,.add-actor-modal input[type="text"]{flex:1;padding:6px 8px;background:#3a4150;color:#fff;border:1px solid #3a4150;border-radius:4px;font-size:13px}
+.add-actor-modal .custom-row{display:flex;gap:10px;margin-bottom:12px;align-items:center}
+.add-actor-modal .custom-row input[type="text"]{flex:1;padding:6px 8px;background:#3a4150;color:#fff;border:1px solid #3a4150;border-radius:4px;font-size:13px}
+.add-actor-modal .save-check{display:flex;align-items:center;gap:6px;margin-bottom:14px;color:#aaa;font-size:13px}
+.add-actor-modal .save-check input[type="checkbox"]{width:16px;height:16px;accent-color:#28a745}
+.add-actor-modal .btn-add{background:#28a745;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;width:100%;font-size:13px}
+
+/* 演员复选列表 */
+.actor-check-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer}
+.actor-check-item:hover{background:#2d323f}
+.actor-check-item.disabled{opacity:0.4;cursor:not-allowed}
+.actor-check-item input[type="checkbox"]{accent-color:#28a745;width:16px;height:16px}
+.actor-check-item.disabled input[type="checkbox"]{accent-color:#666}
+.actor-check-name{font-size:13px;color:#fff}
+.actor-check-item.disabled .actor-check-name{color:#666}
+
+/* 演员资料库弹窗 */
+.actor-item{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px;background:#3a4150;border-radius:8px}
+.actor-item img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #ff4655;flex-shrink:0}
+.actor-item .actor-fields{flex:1;display:flex;flex-direction:column;gap:6px}
+.actor-item .actor-fields input{width:100%;padding:5px 8px;background:#2d323f;color:#fff;border:none;border-radius:4px;font-size:13px}
+.actor-item .actor-fields input::placeholder{color:#666;font-size:11px}
+
+.input-section{background:#252933;padding:15px;border-radius:10px;margin-bottom:20px}
+.section-title{color:#ff4655;margin:0 0 10px;font-size:18px}
+
+/* 录入区 - 演员卡片 */
+.input-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.round-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.win-select{padding:6px 12px;border-radius:6px;border:1px solid #3a4150;background:#2d323f;color:#fff;font-size:13px;cursor:pointer}
+.win-select option{background:#2d323f}
+
+.player-inputs{display:flex;gap:8px;width:100%;flex-wrap:wrap}
+.player-card{background:#2d323f;padding:8px;border-radius:8px;flex:1;min-width:130px;text-align:center;position:relative}
+.player-card .card-del{position:absolute;top:4px;right:4px;background:transparent;border:none;color:#666;cursor:pointer;font-size:14px;padding:0;line-height:1}
+.player-card .card-del:hover{color:#dc3545}
+.player-avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #ff4655;margin:0 auto 4px;display:block}
+.player-name{color:#ff4655;font-weight:bold;margin-bottom:5px;font-size:12px}
+.input-group{display:flex;justify-content:space-between;margin-bottom:4px;align-items:center}
+.input-group label{width:28px;font-size:11px;color:#aaa;text-align:left}
+.input-group input{width:calc(100% - 32px);background:#3a4150;color:#fff;border:none;border-radius:4px;padding:4px;font-size:12px}
+.btn-group{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.btn-submit{padding:8px 12px;background:#ff4655;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px}
+.btn-reset{background:#6c757d;color:#fff;border:none;border-radius:6px;padding:8px 12px;cursor:pointer;font-size:13px}
+.btn-add-actor{background:#2a4a3a;color:#28a745;border:1px solid #28a745;border-radius:6px;padding:8px 12px;cursor:pointer;font-size:13px}
+
+/* 实力表 */
+.result-section{background:#252933;padding:15px;border-radius:10px;margin-bottom:20px;overflow-x:auto}
+.stat-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+.stat-table th,.stat-table td{padding:8px 6px;text-align:center;border-bottom:1px solid #3a4150}
+.stat-table th{background:#3a4150;color:#ff4655}
+.avg-rt{color:#ff4655;font-weight:bold}
+.avg-adr{color:#f0a500;font-weight:bold}
+
+/* 筛选栏 */
+#filterBar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;padding:8px;background:#2d323f;border-radius:6px}
+.filter-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-size:12px;cursor:pointer;user-select:none;background:#3a4150;color:#aaa;transition:.2s;border:none}
+.filter-chip.active{background:#ff4655;color:#fff}
+.filter-clear{font-size:12px;color:#666;background:transparent;border:none;cursor:pointer;padding:2px 6px}
+.filter-clear:hover{color:#ff4655}
+
+/* 每局详情 */
+.round-detail{background:#252933;padding:15px;border-radius:10px;margin-bottom:20px}
+.round-item{background:#2d323f;padding:10px;margin-bottom:8px;border-radius:8px}
+.round-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:6px}
+.round-title{color:#ff4655;font-weight:bold;font-size:13px}
+.win-badge{padding:2px 10px;border-radius:12px;font-size:12px;font-weight:bold}
+.win-badge.win{background:#1a3a2a;color:#28a745;border:1px solid #28a745}
+.win-badge.lose{background:#3a1a1a;color:#dc3545;border:1px solid #dc3545}
+.win-badge.draw{background:#3a3a3a;color:#aaa;border:1px solid #666}
+.round-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(85px, 1fr));gap:5px;text-align:center;font-size:11px}
+.round-grid .cell-name{color:#ff4655;font-size:11px}
+.round-grid .cell-kda{color:#fff}
+.round-grid .cell-rt{color:#aaa;font-size:10px}
+.round-grid .cell-adr{color:#f0a500;font-size:10px}
+
+.status-bar{background:#252933;padding:10px 15px;border-radius:8px;margin-bottom:15px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.status-bar .info{color:#aaa;font-size:13px}
+.status-bar .wl{font-size:13px}
+.status-bar .wl .w{color:#28a745;font-weight:bold}
+.status-bar .wl .l{color:#dc3545;font-weight:bold}
+#loading{text-align:center;padding:40px;color:#ff4655;font-size:16px}
+
+@media(max-width:768px){
+  .player-card{min-width:calc(50% - 4px)}
+  .round-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:480px){
+  .player-card{min-width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- 届次栏-->
+<div class="edition-bar" id="editionBar">
+  <span class="label">届次：</span>
+  <button class="btn-reset" style="font-size:12px" onclick="showNewEdition()">＋ 新建</button>
+  <div class="right-btns">
+    <button class="btn-reset" style="font-size:12px" onclick="showActorMgr()">🤡 演员</button>
+  </div>
+</div>
+
+<h1 class="title" id="mainTitle">🔥 2026炮门第一届演员争霸赛</h1>
+
+<!-- 状态栏：胜平负 + 胜负 -->
+<div class="status-bar">
+  <div class="info">共 <span id="roundCount">0</span> 局数据</div>
+  <div class="wl">战绩：<span class="w" id="winCount">0</span> 胜 <span class="d" id="drawCount" style="color:#aaa">0</span> 平 <span class="l" id="loseCount">0</span> 负</div>
+  <div class="info" id="lastUpdate">等待数据加载...</div>
+</div>
+
+<!-- 演员实力表 -->
+<div class="result-section">
+  <h2 class="section-title">🤡 演员实力表</h2>
+  <div id="filterBar" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;padding:8px;background:#2d323f;border-radius:6px"></div>
+  <table class="stat-table">
+    <thead><tr><th>排名</th><th>演员</th><th>总K</th><th>总D</th><th>总A</th><th>平均ADR</th><th>平均RT</th><th>局数</th></tr></thead>
+    <tbody id="rankBody"></tbody>
+  </table>
+</div>
+
+<!-- 每局数据详情 -->
+<div class="round-detail" id="logs">
+  <h2 class="section-title">📋 每局数据详情</h2>
+  <div id="loading">正在加载数据...</div>
+</div>
+
+<!-- 录入区 -->
+<div class="input-section">
+  <div class="input-header">
+    <h2 class="section-title" style="margin:0">🖊 录入本局数据</h2>
+    <div class="round-meta">
+      <select class="win-select" id="roundResult">
+        <option value="">胜负</option>
+        <option value="win">🏆 胜</option>
+        <option value="draw">🤝 平</option>
+        <option value="lose">💀 负</option>
+      </select>
+      <button class="btn-add-actor" onclick="showAddActorModal()">＋ 添加演员</button>
+    </div>
+  </div>
+  <div id="inputInfo" style="color:#888;font-size:12px;margin-bottom:8px"></div>
+  <div class="player-inputs" id="playerInputs"></div>
+  <div class="btn-group">
+    <button class="btn-submit" id="addBtn">✅ 提交本局</button>
+    <button class="btn-reset" id="clearBtn">🗑 清空全部</button>
+  </div>
+</div>
+
+<!-- 新建届次弹窗 -->
+<div class="modal-mask" id="editionModal" style="display:none">
+  <div class="modal">
+    <h3>🏆 新建届次</h3>
+    <div style="margin-bottom:12px">
+      <label>届次名称</label>
+      <input id="edName" placeholder="例如：2026炮门第二届演员争霸赛">
+    </div>
+    <div class="row">
+      <div><label>开始时间</label><input id="edStart" type="date"></div>
+      <div><label>结束时间</label><input id="edEnd" type="date"></div>
+    </div>
+    <button class="btn-save" onclick="createEdition()">✅ 创建</button>
+  </div>
+</div>
+
+<!-- 演员资料库弹窗 -->
+<div class="modal-mask" id="actorModal" style="display:none">
+  <div class="modal">
+    <h3>🤡 演员资料库</h3>
+    <div id="actorList"></div>
+    <button class="btn-green" onclick="addActorRow()" style="margin:10px 0 4px">＋ 追加演员</button>
+    <button class="btn-save" onclick="saveActors()">💾 保存</button>
+  </div>
+</div>
+
+<!-- 添加演员弹窗（多选版） -->
+<div class="modal-mask" id="addActorModal" style="display:none">
+  <div class="modal add-actor-modal">
+    <h3>➕ 添加演员到本局</h3>
+    <div style="margin-bottom:14px">
+      <label style="color:#aaa;font-size:13px;display:block;margin-bottom:8px">选择资料库演员（可多选）：</label>
+      <div id="actorCheckList" style="max-height:200px;overflow-y:auto;background:#3a4150;border-radius:6px;padding:6px 8px"></div>
+    </div>
+    <div class="custom-row" style="margin-bottom:12px">
+      <label style="color:#aaa;font-size:13px;white-space:nowrap">或添加自定义演员：</label>
+      <input type="text" id="customActorName" placeholder="输入演员名称" style="flex:1">
+      <button onclick="confirmAddCustomActor()" style="padding:4px 12px;background:#28a745;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;white-space:nowrap">添加</button>
+    </div>
+    <div class="save-check">
+      <input type="checkbox" id="saveToLib" checked>
+      <label for="saveToLib" style="color:#aaa;font-size:13px">自定义演员同时保存到资料库</label>
+    </div>
+    <button class="btn-add" onclick="confirmAddActors()" style="margin-top:10px">✅ 确认添加选中演员</button>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://jucftwuhdcimdcsrncok.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1Y2Z0d3VoZGNpbWRjc3JuY29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MTA5NzEsImV4cCI6MjA5MzA4Njk3MX0.YZXRe4yQL_CT-JkCtEYrnfWCjbxj_uveoQqot-x9QII';
+
+let sb = null;
+let editions = [];
+let curEd = null;
+let rounds = [];
+let names = ["ZyWOO","Donk","老登","医生","幽月"];
+let avatars = [
+  "https://raw.githubusercontent.com/LeafKnowsAutumn/paomen-actor/main/images/zywoo.jpg",
+  "https://raw.githubusercontent.com/LeafKnowsAutumn/paomen-actor/main/images/donk.jpg",
+  "https://raw.githubusercontent.com/LeafKnowsAutumn/paomen-actor/main/images/laodeng.jpg",
+  "https://raw.githubusercontent.com/LeafKnowsAutumn/paomen-actor/main/images/yisheng.jpg",
+  "https://raw.githubusercontent.com/LeafKnowsAutumn/paomen-actor/main/images/youyue.jpg"
+];
+const DEFAULT_AVATAR = "https://raw.githubusercontent.com/LeafKnowsAutumn/paomen-actor/main/images/paomen.jpg";
+
+let inputActors = [];
+let filteredActors = null;
+let oscarWinners = {}; // {editionId: {name, avgRt, editionName}}
+
+function calcRT(k,d){ if(!d) return k; return parseFloat((k/d).toFixed(2)); }
+
+/* 计算所有届奥斯卡得主（最低平均RT）*/
+async function computeOscarWinners(){
+  oscarWinners = {};
+  for(var i=0; i<editions.length; i++){
+    var ed = editions[i];
+    var r = await sb.from('rounds').select('data').eq('edition_id', ed.id);
+    if(r.error || !r.data.length) continue;
+    var actorStats = {};
+    r.data.forEach(function(row){
+      (row.data||[]).forEach(function(p){
+        var n = p.name || '';
+        if(!n) return;
+        if(!actorStats[n]) actorStats[n] = {rt:0, count:0};
+        actorStats[n].rt += p.rt||0;
+        actorStats[n].count++;
+      });
+    });
+    var minRt = Infinity, winner = '';
+    for(var n in actorStats){
+      var avg = actorStats[n].rt / actorStats[n].count;
+      if(avg < minRt){ minRt = avg; winner = n; }
+    }
+    if(winner){
+      oscarWinners[ed.id] = {name:winner, avgRt:minRt, editionName:ed.name};
+    }
+  }
+}
+
+async function loadScript(src){
+  return new Promise(function(ok,err){
+    if(window.supabase){ok();return;}
+    let s=document.createElement('script'); s.src=src;
+    s.onload=ok; s.onerror=function(){ err(new Error(src)); }; document.head.appendChild(s);
+  });
+}
+
+async function initSB(){
+  try{
+    await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
+    if(!window.supabase) throw 0;
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    return true;
+  }catch(e){ return false; }
+}
+
+async function ensureTables(){
+  let r = await sb.from('rounds').select('result').limit(1);
+  if(r.error && r.error.message && r.error.message.includes('result')){
+    alert('数据库缺少 result 字段，请在 Supabase SQL Editor 执行：\nALTER TABLE public.rounds ADD COLUMN IF NOT EXISTS result TEXT;\nALTER TABLE public.editions DISABLE ROW LEVEL SECURITY;\nALTER TABLE public.rounds DISABLE ROW LEVEL SECURITY;');
+  }
+}
+
+async function loadEditions(){
+  let r = await sb.from('editions').select('*').order('id',{ascending:false});
+  if(r.error) return;
+  editions = r.data || [];
+  renderEdBar();
+  /* 计算全部奥斯卡得主 */
+  await computeOscarWinners();
+  if(editions.length){
+    switchEd(editions[0].id);
+  }else{
+    showNewEdition();
+  }
+}
+
+function renderEdBar(){
+  let bar = document.getElementById('editionBar');
+  let label = bar.querySelector('.label');
+  let newBtn = bar.querySelector('.btn-reset');
+  let right = bar.querySelector('.right-btns');
+  bar.innerHTML = '';
+  bar.appendChild(label);
+  editions.forEach(function(ev){
+    let wrap = document.createElement('div');
+    wrap.style.cssText = 'display:inline-flex;align-items:center;margin-right:4px';
+    let b = document.createElement('button');
+    b.className = 'ed-btn' + (curEd && curEd.id===ev.id?' active':'');
+    b.textContent = ev.name.replace('2026炮门','').replace('演员争霸赛','');
+    b.onclick = function(){ switchEd(ev.id); };
+    wrap.appendChild(b);
+    let editBtn = document.createElement('button');
+    editBtn.className = 'ed-edit-btn';
+    editBtn.textContent = '✏️';
+    editBtn.title = '重命名';
+    editBtn.onclick = function(e){ e.stopPropagation(); editEdition(ev.id); };
+    wrap.appendChild(editBtn);
+    let delBtn = document.createElement('button');
+    delBtn.className = 'ed-delete-btn';
+    delBtn.textContent = '🗑';
+    delBtn.title = '删除';
+    delBtn.onclick = function(e){ e.stopPropagation(); deleteEdition(ev.id); };
+    wrap.appendChild(delBtn);
+    bar.appendChild(wrap);
+  });
+  bar.appendChild(newBtn);
+  bar.appendChild(right);
+}
+
+async function switchEd(id){
+  let ev = editions.find(function(e){ return e.id===id; });
+  if(!ev) return;
+  curEd = ev;
+  if(ev.players && ev.players.length) names = ev.players;
+  if(ev.avatars && ev.avatars.length){
+    avatars = ev.avatars;
+  }else{
+    avatars = names.map(function(){ return DEFAULT_AVATAR; });
+  }
+  /* 录入区默认最多5个：优先用本届有数据的演员，否则用资料库前5 */
+  var actorSet = {};
+  rounds.forEach(function(r){
+    r.data.forEach(function(p){ if(p.name) actorSet[p.name]=true; });
+  });
+  var hasDataNames = [];
+  for(var k in actorSet) hasDataNames.push(k);
+  var initNames = hasDataNames.length ? hasDataNames.slice(0,5) : names.slice(0, Math.min(5, names.length));
+  inputActors = [];
+  for(var j=0; j<initNames.length; j++){
+    var nm = initNames[j];
+    var idx = names.indexOf(nm);
+    inputActors.push({name:nm, avatar: idx>=0 ? (avatars[idx]||DEFAULT_AVATAR) : DEFAULT_AVATAR});
+  }
+
+  let r = await sb.from('rounds').select('id,data,created_at,result').eq('edition_id',id).order('id');
+  if(r.error){
+    console.error('加载对局数据失败:', r.error);
+    alert('加载对局数据失败\n'+r.error.message+'\n\n请检查 Supabase RLS 权限设置');
+    rounds=[];
+  }else{
+    rounds = r.data.map(function(row){ return {id:row.id, data:row.data, created_at:row.created_at, result:row.result||''}; });
+  }
+  document.getElementById('mainTitle').textContent = '🔥 ' + ev.name;
+  let timeStr = (ev.start_date||'') + (ev.end_date?' ~ '+ev.end_date:'');
+  renderEdBar();
+  let existingTime = document.getElementById('edTimeDisplay');
+  if(!existingTime){
+    existingTime = document.createElement('div');
+    existingTime.id = 'edTimeDisplay';
+    existingTime.style.cssText = 'text-align:center;color:#666;font-size:13px;margin-bottom:15px';
+    document.getElementById('mainTitle').insertAdjacentElement('afterend', existingTime);
+  }
+  existingTime.textContent = timeStr;
+  renderInputs();
+  renderAll();
+  document.getElementById('lastUpdate').textContent = '最后更新 '+new Date().toLocaleTimeString('zh-CN');
+}
+
+function showNewEdition(){
+  document.getElementById('edName').value = '2026炮门第'+(editions.length+1)+'届演员争霸赛';
+  document.getElementById('edStart').value = new Date().toISOString().slice(0,10);
+  document.getElementById('edEnd').value = '';
+  document.getElementById('editionModal').style.display = 'flex';
+}
+window.showNewEdition = showNewEdition;
+
+async function createEdition(){
+  let name = document.getElementById('edName').value.trim();
+  let start = document.getElementById('edStart').value;
+  let end = document.getElementById('edEnd').value;
+  if(!name){alert('请输入名称');return;}
+  let r = await sb.from('editions').insert([{name:name, start_date:start, end_date:end, players:names, avatars:avatars}]).select();
+  if(r.error){alert('创建失败:'+r.error.message);return;}
+  editions.push(r.data[0]);
+  document.getElementById('editionModal').style.display = 'none';
+  switchEd(r.data[0].id);
+}
+
+async function editEdition(id){
+  let ev = editions.find(function(e){ return e.id===id; });
+  if(!ev) return;
+  let newName = prompt('重命名届次：', ev.name);
+  if(!newName || newName.trim()==='') return;
+  newName = newName.trim();
+  let r = await sb.from('editions').update({name:newName}).eq('id', id);
+  if(r.error){alert('重命名失败:'+r.error.message);return;}
+  ev.name = newName;
+  if(curEd && curEd.id===id){
+    document.getElementById('mainTitle').textContent = '🔥 ' + newName;
+  }
+  renderEdBar();
+}
+
+async function deleteEdition(id){
+  let ev = editions.find(function(e){ return e.id===id; });
+  if(!ev) return;
+  if(!confirm('删除届次《'+ev.name+'》？\n该届次下的所有对局将同时删除！')) return;
+  if(!confirm('再次确认删除？此操作不可撤销！')) return;
+
+  let r1 = await sb.from('rounds').delete().eq('edition_id', id);
+  if(r1.error){alert('删除对局失败:'+r1.error.message);return;}
+
+  let r2 = await sb.from('editions').delete().eq('id', id);
+  if(r2.error){alert('删除届次失败:'+r2.error.message);return;}
+
+  editions = editions.filter(function(e){ return e.id!==id; });
+  rounds = rounds.filter(function(r){ return r.edition_id!==id; });
+
+  if(curEd && curEd.id===id){
+    if(editions.length){
+      switchEd(editions[0].id);
+    }else{
+      curEd = null;
+      rounds = [];
+      renderAll();
+      showNewEdition();
+    }
+  }
+  renderEdBar();
+}
+
+function showActorMgr(){
+  renderActorList();
+  document.getElementById('actorModal').style.display = 'flex';
+}
+window.showActorMgr = showActorMgr;
+
+function renderActorList(){
+  let list = document.getElementById('actorList');
+  list.innerHTML = '';
+  /* 统计每个演员获得奥斯卡的次数 */
+  let oscarCount = {};
+  for(var edId in oscarWinners){
+    let w = oscarWinners[edId].name;
+    oscarCount[w] = (oscarCount[w]||0) + 1;
+  }
+  /* 按奥斯卡次数排序names/avatars（次数多的排前面，次数相同按原顺序）*/
+  var sortedIdx = [];
+  for(var t=0; t<names.length; t++) sortedIdx.push(t);
+  sortedIdx.sort(function(a,b){
+    var ca = oscarCount[names[a]]||0, cb = oscarCount[names[b]]||0;
+    if(cb!==ca) return cb - ca;
+    return a - b;
+  });
+  /* 按排序结果重排names和avatars */
+  var newNames = [], newAvatars = [];
+  for(var t=0; t<sortedIdx.length; t++){ newNames.push(names[sortedIdx[t]]); newAvatars.push(avatars[sortedIdx[t]]||DEFAULT_AVATAR); }
+  names = newNames; avatars = newAvatars;
+
+  names.forEach(function(n,i){
+    let avUrl = avatars[i]||DEFAULT_AVATAR;
+    let item = document.createElement('div');
+    item.className = 'actor-item';
+    /* 组装奥斯卡标注：只显示一行，X=获奖次数 */
+    let oscarLabel = '';
+    if(oscarCount[n]){
+      oscarLabel = '<div style="color:#f0a500;font-size:11px">'+oscarCount[n]+'届「奥斯卡」大满贯得主</div>';
+    }
+    /* 头像区域：左上角小丑角标 */
+    let badge = '';
+    if(oscarCount[n]){
+      badge = '<span style="position:absolute;top:0;left:0;font-size:16px;z-index:2">🤡</span>';
+    }
+    item.innerHTML = '<div style="position:relative;flex-shrink:0">'
+      + '<img src="'+avUrl+'" onerror="this.src=\''+DEFAULT_AVATAR+'\'" data-idx="'+i+'">'
+      + badge
+      + '</div>'
+      + '<div class="actor-fields">'
+      + '<input type="text" value="'+n+'" placeholder="演员名" data-field="name" data-idx="'+i+'">'
+      + '<input type="text" value="'+(avUrl===DEFAULT_AVATAR?'':avUrl)+'" placeholder="头像URL（留空用默认头像）" data-field="avatar" data-idx="'+i+'">'
+      + oscarLabel
+      + '</div>'
+      + '<button class="btn-red" onclick="removeActor('+i+')">删除</button>';
+    let nameInp = item.querySelector('[data-field="name"]');
+    let avInp   = item.querySelector('[data-field="avatar"]');
+    let img     = item.querySelector('img');
+    nameInp.oninput = function(){ names[i] = this.value; };
+    avInp.oninput   = function(){
+      avatars[i] = this.value.trim() || DEFAULT_AVATAR;
+      img.src = avatars[i];
+    };
+    list.appendChild(item);
+  });
+}
+
+function addActorRow(){
+  names.push('新演员');
+  avatars.push(DEFAULT_AVATAR);
+  renderActorList();
+}
+window.addActorRow = addActorRow;
+
+function removeActor(i){
+  if(names.length<=1){alert('至少保留1名演员');return;}
+  names.splice(i,1);
+  avatars.splice(i,1);
+  renderActorList();
+}
+window.removeActor = removeActor;
+
+async function saveActors(){
+  if(names.length<1){alert('至少1名演员');return;}
+  if(!curEd) return;
+  let r = await sb.from('editions').update({players:names, avatars:avatars}).eq('id',curEd.id);
+  if(!r.error){ curEd.players=names; curEd.avatars=avatars; }
+  /* 保存后录入区仍只显示前5个 */
+  var initNames2 = names.slice(0, Math.min(5, names.length));
+  inputActors = [];
+  for(var j=0; j<initNames2.length; j++){
+    inputActors.push({name:initNames2[j], avatar:avatars[j]||DEFAULT_AVATAR});
+  }
+  document.getElementById('actorModal').style.display = 'none';
+  renderInputs();
+  renderAll();
+}
+window.saveActors = saveActors;
+
+function removeInputActor(i){
+  if(inputActors.length<=1){alert('至少保留1名演员');return;}
+  inputActors.splice(i,1);
+  renderInputs();
+}
+window.removeInputActor = removeInputActor;
+
+window.showAddActorModal = function(){
+  let list = document.getElementById('actorCheckList');
+  list.innerHTML = '';
+  names.forEach(function(n,i){
+    let already = inputActors.find(function(a){ return a.name===n; });
+    let item = document.createElement('label');
+    item.className = 'actor-check-item' + (already?' disabled':'');
+    item.innerHTML = '<input type="checkbox" value="'+n+'" '+(already?'disabled checked':'')+'> <span class="actor-check-name">'+n+'</span>'+(already?' <span style="color:#666;font-size:11px">（已添加）</span>':'');
+    if(!already){
+      item.onclick = function(e){
+        let cb = this.querySelector('input[type="checkbox"]');
+        if(e.target!==cb) cb.checked = !cb.checked;
+      };
+    }
+    list.appendChild(item);
+  });
+  document.getElementById('customActorName').value = '';
+  document.getElementById('saveToLib').checked = true;
+  document.getElementById('addActorModal').style.display = 'flex';
+};
+
+window.confirmAddActors = async function(){
+  let list = document.getElementById('actorCheckList');
+  let checked = list.querySelectorAll('input[type="checkbox"]:checked:not(:disabled)');
+  let added = [];
+  checked.forEach(function(cb){
+    let n = cb.value;
+    if(inputActors.find(function(a){ return a.name===n; })) return;
+    let idx = names.indexOf(n);
+    let avatar = idx>=0 ? (avatars[idx]||DEFAULT_AVATAR) : DEFAULT_AVATAR;
+    inputActors.push({name:n, avatar:avatar});
+    added.push(n);
+  });
+  if(!added.length){alert('请选择要添加的演员');return;}
+  document.getElementById('addActorModal').style.display = 'none';
+  renderInputs();
+};
+
+window.confirmAddCustomActor = async function(){
+  let customName = document.getElementById('customActorName').value.trim();
+  if(!customName){alert('请输入演员名称');return;}
+  let saveToLib = document.getElementById('saveToLib').checked;
+  if(saveToLib && !names.includes(customName)){
+    names.push(customName);
+    avatars.push(DEFAULT_AVATAR);
+    if(curEd){
+      let r = await sb.from('editions').update({players:names, avatars:avatars}).eq('id',curEd.id);
+      if(!r.error){ curEd.players = names; curEd.avatars = avatars; }
+    }
+  }
+  if(!inputActors.find(function(a){ return a.name===customName; })){
+    inputActors.push({name:customName, avatar:DEFAULT_AVATAR});
+  }
+  document.getElementById('addActorModal').style.display = 'none';
+  renderInputs();
+};
+
+function renderInputs(){
+  let c = document.getElementById('playerInputs');
+  c.innerHTML = inputActors.map(function(actor,i){
+    return '<div class="player-card" data-idx="'+i+'">'
+      +'<button class="card-del" onclick="removeInputActor('+i+')" title="移除">✕</button>'
+      +'<img src="'+actor.avatar+'" class="player-avatar" onerror="this.src=\''+DEFAULT_AVATAR+'\'">'
+      +'<input class="player-name-input" value="'+actor.name+'" placeholder="演员名" data-idx="'+i+'"'
+      +' style="width:90%;margin:4px auto 6px;padding:4px;background:#3a4150;color:#ff4655;font-weight:bold;border:1px solid #3a4150;border-radius:4px;font-size:12px;text-align:center;display:block">'
+      +'<div class="input-group"><label>K</label><input type="number" class="k" min="0" placeholder="击杀"></div>'
+      +'<div class="input-group"><label>D</label><input type="number" class="d" min="0" placeholder="死亡"></div>'
+      +'<div class="input-group"><label>A</label><input type="number" class="a" min="0" placeholder="助攻"></div>'
+      +'<div class="input-group"><label>RT</label><input type="text" class="rtxt" placeholder="手动输入RT" style="background:#2d323f;color:#ff4655;font-weight:bold;border:1px solid #3a4150;text-align:center;font-size:12px"></div>'
+      +'<div class="input-group"><label>ADR</label><input type="number" class="adr" min="0" step="0.1" placeholder="ADR"></div>'
+      +'</div>';
+  }).join('');
+
+  c.querySelectorAll('.player-name-input').forEach(function(inp){
+    inp.addEventListener('input', function(){
+      let idx = +this.dataset.idx;
+      if(inputActors[idx]) inputActors[idx].name = this.value.trim() || '未命名';
+    });
+  });
+
+  c.querySelectorAll('.player-card').forEach(function(card){
+    let ki=card.querySelector('.k'), di=card.querySelector('.d'), rt=card.querySelector('.rtxt');
+    function up(){
+      if(!rt.value || rt.value==='-'){
+        let k=+ki.value||0, d=+di.value||0;
+        if(k||d) rt.value=calcRT(k,d);
+      }
+    }
+    ki.oninput=up; di.oninput=up;
+    rt.onfocus=function(){ if(rt.value==='-') rt.value=''; };
+    rt.onblur=function(){ if(!rt.value) rt.value='-'; };
+  });
+  document.getElementById('inputInfo').textContent = '录入' + inputActors.length + '人，无需录入的右上角点"X"去掉';
+}
+
+async function addRound(){
+  if(!curEd){alert('请先创建届次');return;}
+  let result = document.getElementById('roundResult').value;
+  let row=[], has=false;
+  document.querySelectorAll('#playerInputs .player-card').forEach(function(c,i){
+    let k=+c.querySelector('.k').value||0;
+    let d=+c.querySelector('.d').value||0;
+    let a=+c.querySelector('.a').value||0;
+    let rtInput=c.querySelector('.rtxt').value;
+    let rt=(rtInput && rtInput!=='-') ? parseFloat(rtInput) : calcRT(k,d);
+    let adr=parseFloat(c.querySelector('.adr').value)||0;
+    let name=inputActors[i]?inputActors[i].name:(names[i]||'?');
+    if(k||d||a||adr) has=true;
+    row.push({k:k,d:d,a:a,rt:rt,adr:adr,name:name});
+  });
+  if(!has){alert('请填写数据');return;}
+  let payload={data:row, edition_id:curEd.id};
+  if(result) payload.result=result;
+  let r = await sb.from('rounds').insert([payload]).select();
+  if(r.error){alert('提交失败:'+r.error.message);return;}
+  let insertedResult = r.data[0].result || result;
+  rounds.push({id:r.data[0].id, data:row, created_at:r.data[0].created_at, result:insertedResult});
+  renderAll();
+  document.querySelectorAll('#playerInputs .k,.d,.a,.adr').forEach(function(i){ i.value=''; });
+  document.querySelectorAll('#playerInputs .rtxt').forEach(function(i){ i.value='-'; });
+  document.getElementById('roundResult').value='';
+  document.getElementById('lastUpdate').textContent = '最后更新 '+new Date().toLocaleTimeString('zh-CN');
+}
+
+async function deleteRound(id){
+  if(!confirm('删除这一局？')) return;
+  let r = await sb.from('rounds').delete().eq('id',id);
+  if(r.error){alert('删除失败');return;}
+  rounds = rounds.filter(function(rnd){ return rnd.id!==id; });
+  renderAll();
+}
+
+async function clearAll(){
+  if(!confirm('清空全部数据？不可撤销！')) return;
+  if(!confirm('再次确认？')) return;
+  if(!rounds.length) return;
+  let ids = rounds.map(function(r){ return r.id; });
+  let r = await sb.from('rounds').delete().in('id',ids);
+  if(r.error){alert('清空失败');return;}
+  rounds=[]; renderAll();
+}
+
+/* 筛选栏：只显示本届有数据的演员 */
+function renderFilterBar(){
+  let bar = document.getElementById('filterBar');
+  /* 收集有数据的演员 */
+  let hasDataActors = {};
+  rounds.forEach(function(r){
+    r.data.forEach(function(p){
+      let n = p.name || '';
+      if(n) hasDataActors[n] = true;
+    });
+  });
+  let actorsWithData = Object.keys(hasDataActors);
+  /* 如果没有数据，显示所有演员 */
+  let showNames = actorsWithData.length ? actorsWithData : names;
+  let html = '';
+  for(let i=0; i<showNames.length; i++){
+    let n = showNames[i];
+    let active = (!filteredActors || filteredActors.indexOf(n)>=0);
+    html += '<button class="filter-chip '+(active?'active':'')+'" onclick="toggleActorFilter(\''+n+'\')">'+n+'</button>';
+  }
+  if(filteredActors && filteredActors.length < showNames.length){
+    html += '<button class="filter-clear" onclick="clearActorFilter()">清除筛选</button>';
+  }
+  bar.innerHTML = html;
+}
+
+function clearActorFilter(){
+  filteredActors = null;
+  renderAll();
+}
+
+/* 演员实力表 */
+function renderRank(){
+  let tb = document.getElementById('rankBody');
+  if(!rounds.length){
+    tb.innerHTML='<tr><td colspan="8" style="color:#666">暂无数据</td></tr>';
+    return;
+  }
+  let actorMap = {};
+  rounds.forEach(function(r){
+    r.data.forEach(function(p,idx){
+      let n = p.name || (names[idx]||'未知');
+      if(!actorMap[n]) actorMap[n]={k:0,d:0,a:0,rt:0,adr:0,count:0};
+      actorMap[n].k   += p.k||0;
+      actorMap[n].d   += p.d||0;
+      actorMap[n].a   += p.a||0;
+      actorMap[n].rt  += p.rt||0;
+      actorMap[n].adr += p.adr||0;
+      actorMap[n].count++;
+    });
+  });
+  let rank = [];
+  let keys = Object.keys(actorMap);
+  for(let i=0; i<keys.length; i++){
+    let n = keys[i];
+    let s = actorMap[n];
+    rank.push({
+      name:n,
+      k:s.k, d:s.d, a:s.a,
+      avgRt: s.count>0 ? (s.rt/s.count).toFixed(2) : '0.00',
+      avgAdr: s.count>0 ? (s.adr/s.count).toFixed(1) : '0.0',
+      count: s.count
+    });
+  }
+  rank.sort(function(a,b){ return parseFloat(a.avgRt) - parseFloat(b.avgRt); });
+  let maxRt  = rank.length ? parseFloat(rank[rank.length-1].avgRt) : 0;
+  /* 计算最高平均ADR */
+  let maxAdr = 0;
+  for(let i=0;i<rank.length;i++){ let v=parseFloat(rank[i].avgAdr); if(v>maxAdr) maxAdr=v; }
+  let html = '';
+  for(let i=0;i<rank.length;i++){
+    let r = rank[i];
+    let bg = (filteredActors && filteredActors.indexOf(r.name)>=0) ? 'background:#000000' : '';
+    html += '<tr style="'+bg+'">'
+      +'<td>'+(i+1)+'</td>'
+      +'<td style="color:#ff4655;font-weight:bold">'+r.name+'</td>'
+      +'<td>'+r.k+'</td><td>'+r.d+'</td><td>'+r.a+'</td>'
+      +'<td class="avg-adr">'+r.avgAdr+(parseFloat(r.avgAdr)===maxAdr&&maxAdr>0?' 🔥':'')+'</td>'
+      +'<td class="avg-rt">'+r.avgRt+(parseFloat(r.avgRt)===maxRt&&maxRt>0?' ⭐':'')+'</td>'
+      +'<td>'+r.count+'</td>'
+      +'</tr>';
+  }
+  tb.innerHTML = html;
+}
+
+/* 每局详情 */
+function renderLogs(){
+  let c = document.getElementById('logs');
+  let t = c.querySelector('.section-title');
+  c.innerHTML=''; c.appendChild(t);
+  if(!rounds.length){
+    c.innerHTML+='<div style="color:#666;text-align:center;padding:20px">暂无数据</div>';
+    return;
+  }
+  let sorted = rounds.slice().reverse().filter(function(r){
+    if(!filteredActors) return true;
+    return r.data.some(function(p){ return filteredActors.indexOf(p.name||'')>=0; });
+  });
+  sorted.forEach(function(r,revIdx){
+    let realIdx = rounds.length - revIdx;
+    let d = document.createElement('div');
+    d.className='round-item';
+    let resultBadge = '';
+    if(r.result){
+      let txt = r.result==='win'?'胜':r.result==='draw'?'平':'负';
+      resultBadge = '<span class="win-badge '+r.result+'">'+txt+'</span>';
+    }
+    /* 计算本局最高RT和ADR（仅计算筛选演员）*/
+    let playersToShow = filteredActors
+      ? r.data.filter(function(p){ return filteredActors.indexOf(p.name||'')>=0; })
+      : r.data;
+    let maxRT = 0, maxADR = 0;
+    for(let i=0;i<playersToShow.length;i++){
+      if((playersToShow[i].rt||0) > maxRT) maxRT = playersToShow[i].rt||0;
+      if((playersToShow[i].adr||0) > maxADR) maxADR = playersToShow[i].adr||0;
+    }
+    let gridHtml = '';
+    for(let i=0;i<playersToShow.length;i++){
+      let p = playersToShow[i];
+      let rtStr = p.rt||0;
+      let adrStr = p.adr ? '<div class="cell-adr">ADR: '+p.adr+((p.adr===maxADR&&maxADR>0)?' 🔥':'')+'</div>' : '';
+      gridHtml += '<div>'
+        +'<div class="cell-name">'+ (p.name||'?') +'</div>'
+        +'<div class="cell-kda">'+p.k+'/'+p.d+'/'+p.a+'</div>'
+        +'<div class="cell-rt">RT: '+rtStr+((p.rt||0)===maxRT&&maxRT>0?' ⭐':'')+'</div>'
+        +adrStr
+        +'</div>';
+    }
+    d.innerHTML = '<div class="round-item-header">'
+      +'<span class="round-title">第'+realIdx+'局 · '+new Date(r.created_at).toLocaleString('zh-CN')+'</span>'
+      +'<div style="display:flex;align-items:center;gap:8px">'
+      +resultBadge
+      +'<button class="btn-red" onclick="deleteRound('+r.id+')">删除</button>'
+      +'</div></div>'
+      +'<div class="round-grid">'+gridHtml+'</div>';
+    c.appendChild(d);
+  });
+}
+
+/* 筛选切换 */
+function toggleActorFilter(name){
+  if(!filteredActors){
+    filteredActors = [name];
+  }else if(filteredActors.indexOf(name)>=0){
+    filteredActors = filteredActors.filter(function(n){ return n!==name; });
+    if(!filteredActors.length) filteredActors = null;
+  }else{
+    filteredActors.push(name);
+  }
+  renderAll();
+}
+
+/* 总渲染 */
+function renderAll(){
+  renderFilterBar();
+  document.getElementById('roundCount').textContent = rounds.length;
+  let wins = 0, draws = 0, loses = 0;
+  rounds.forEach(function(r){
+    if(r.result==='win') wins++;
+    if(r.result==='draw') draws++;
+    if(r.result==='lose') loses++;
+  });
+  document.getElementById('winCount').textContent  = wins;
+  document.getElementById('drawCount').textContent = draws;
+  document.getElementById('loseCount').textContent = loses;
+  renderRank(); renderLogs();
+  let ld = document.getElementById('loading');
+  if(ld && rounds.length) ld.style.display='none';
+}
+
+/* 启动 */
+(async function(){
+  let ok = await initSB();
+  if(ok){ await ensureTables(); await loadEditions(); }
+  document.getElementById('addBtn').onclick = addRound;
+  document.getElementById('clearBtn').onclick = clearAll;
+  ['editionModal','actorModal','addActorModal'].forEach(function(id){
+    document.getElementById(id).addEventListener('click',function(e){
+      if(e.target===this) this.style.display='none';
+    });
+  });
+})();
+</script>
+</body>
+</html>
