@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>2026炮门演员争霸赛</title>
+<title>2026炮门演员争霸赛 v1.3</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Microsoft YaHei}
 body{background:#1a1c23;color:#fff;padding:20px;max-width:1200px;margin:0 auto}
@@ -365,21 +365,6 @@ async function switchEd(id){
   }else{
     avatars = names.map(function(){ return DEFAULT_AVATAR; });
   }
-  /* 录入区默认最多5个：优先用本届有数据的演员，否则用资料库前5 */
-  var actorSet = {};
-  rounds.forEach(function(r){
-    r.data.forEach(function(p){ if(p.name) actorSet[p.name]=true; });
-  });
-  var hasDataNames = [];
-  for(var k in actorSet) hasDataNames.push(k);
-  var initNames = hasDataNames.length ? hasDataNames.slice(0,5) : names.slice(0, Math.min(5, names.length));
-  inputActors = [];
-  for(var j=0; j<initNames.length; j++){
-    var nm = initNames[j];
-    var idx = names.indexOf(nm);
-    inputActors.push({name:nm, avatar: idx>=0 ? (avatars[idx]||DEFAULT_AVATAR) : DEFAULT_AVATAR});
-  }
-
   let r = await sb.from('rounds').select('id,data,created_at,result').eq('edition_id',id).order('id');
   if(r.error){
     console.error('加载对局数据失败:', r.error);
@@ -388,6 +373,30 @@ async function switchEd(id){
   }else{
     rounds = r.data.map(function(row){ return {id:row.id, data:row.data, created_at:row.created_at, result:row.result||''}; });
   }
+
+  /* 录入区：本届有数据则显示所有有数据的演员，无数据则显示资料库前5 */
+  var actorSet = {};
+  rounds.forEach(function(r){
+    r.data.forEach(function(p){ if(p.name) actorSet[p.name]=true; });
+  });
+  var hasDataNames = [];
+  for(var k in actorSet) hasDataNames.push(k);
+  inputActors = [];
+  if(hasDataNames.length){
+    /* 本届有数据：显示所有有数据的演员 */
+    for(var j=0; j<hasDataNames.length; j++){
+      var nm = hasDataNames[j];
+      var idx = names.indexOf(nm);
+      inputActors.push({name:nm, avatar: idx>=0 ? (avatars[idx]||DEFAULT_AVATAR) : DEFAULT_AVATAR});
+    }
+  } else {
+    /* 本届无数据：默认显示资料库前5个 */
+    var initCount = Math.min(5, names.length);
+    for(var j=0; j<initCount; j++){
+      inputActors.push({name:names[j], avatar: avatars[j]||DEFAULT_AVATAR});
+    }
+  }
+
   document.getElementById('mainTitle').textContent = '🔥 ' + ev.name;
   let timeStr = (ev.start_date||'') + (ev.end_date?' ~ '+ev.end_date:'');
   renderEdBar();
@@ -551,11 +560,27 @@ async function saveActors(){
   if(!curEd) return;
   let r = await sb.from('editions').update({players:names, avatars:avatars}).eq('id',curEd.id);
   if(!r.error){ curEd.players=names; curEd.avatars=avatars; }
-  /* 保存后录入区仍只显示前5个 */
-  var initNames2 = names.slice(0, Math.min(5, names.length));
+  /* 保存后录入区：本届有数据则显示所有有数据的演员，无数据则显示资料库前5 */
+  var actorSet2 = {};
+  rounds.forEach(function(r){
+    r.data.forEach(function(p){ if(p.name) actorSet2[p.name]=true; });
+  });
+  var hasDataNames2 = [];
+  for(var k2 in actorSet2) hasDataNames2.push(k2);
   inputActors = [];
-  for(var j=0; j<initNames2.length; j++){
-    inputActors.push({name:initNames2[j], avatar:avatars[j]||DEFAULT_AVATAR});
+  if(hasDataNames2.length){
+    /* 本届有数据：显示所有有数据的演员 */
+    for(var j2=0; j2<hasDataNames2.length; j2++){
+      var nm2 = hasDataNames2[j2];
+      var idx2 = names.indexOf(nm2);
+      inputActors.push({name:nm2, avatar: idx2>=0 ? (avatars[idx2]||DEFAULT_AVATAR) : DEFAULT_AVATAR});
+    }
+  } else {
+    /* 本届无数据：默认显示资料库前5个 */
+    var initCount2 = Math.min(5, names.length);
+    for(var j3=0; j3<initCount2; j3++){
+      inputActors.push({name:names[j3], avatar: avatars[j3]||DEFAULT_AVATAR});
+    }
   }
   document.getElementById('actorModal').style.display = 'none';
   renderInputs();
@@ -573,11 +598,22 @@ window.removeInputActor = removeInputActor;
 window.showAddActorModal = function(){
   let list = document.getElementById('actorCheckList');
   list.innerHTML = '';
+  /* 统计奥斯卡次数 */
+  let oscarCount = {};
+  for(var edId in oscarWinners){
+    let w = oscarWinners[edId].name;
+    oscarCount[w] = (oscarCount[w]||0) + 1;
+  }
   names.forEach(function(n,i){
     let already = inputActors.find(function(a){ return a.name===n; });
     let item = document.createElement('label');
     item.className = 'actor-check-item' + (already?' disabled':'');
-    item.innerHTML = '<input type="checkbox" value="'+n+'" '+(already?'disabled checked':'')+'> <span class="actor-check-name">'+n+'</span>'+(already?' <span style="color:#666;font-size:11px">（已添加）</span>':'');
+    /* 奥斯卡标注 */
+    let oscarLabel = '';
+    if(oscarCount[n]){
+      oscarLabel = ' <span style="color:#f0a500;font-size:11px">'+oscarCount[n]+'届「奥斯卡」大满贯得主</span>';
+    }
+    item.innerHTML = '<input type="checkbox" value="'+n+'" '+(already?'disabled checked':'')+'> <span class="actor-check-name">'+n+'</span>'+oscarLabel+(already?' <span style="color:#666;font-size:11px">（已添加）</span>':'');
     if(!already){
       item.onclick = function(e){
         let cb = this.querySelector('input[type="checkbox"]');
@@ -687,6 +723,26 @@ async function addRound(){
   if(r.error){alert('提交失败:'+r.error.message);return;}
   let insertedResult = r.data[0].result || result;
   rounds.push({id:r.data[0].id, data:row, created_at:r.data[0].created_at, result:insertedResult});
+  /* 提交后，录入区更新为当前届有数据的演员 */
+  var actorSet = {};
+  rounds.forEach(function(r){
+    r.data.forEach(function(p){ if(p.name) actorSet[p.name]=true; });
+  });
+  var hasDataNames = [];
+  for(var k in actorSet) hasDataNames.push(k);
+  inputActors = [];
+  if(hasDataNames.length){
+    for(var j=0; j<hasDataNames.length; j++){
+      var nm = hasDataNames[j];
+      var idx = names.indexOf(nm);
+      inputActors.push({name:nm, avatar: idx>=0 ? (avatars[idx]||DEFAULT_AVATAR) : DEFAULT_AVATAR});
+    }
+  } else {
+    var initCount = Math.min(5, names.length);
+    for(var j=0; j<initCount; j++){
+      inputActors.push({name:names[j], avatar: avatars[j]||DEFAULT_AVATAR});
+    }
+  }
   renderAll();
   document.querySelectorAll('#playerInputs .k,.d,.a,.adr').forEach(function(i){ i.value=''; });
   document.querySelectorAll('#playerInputs .rtxt').forEach(function(i){ i.value='-'; });
